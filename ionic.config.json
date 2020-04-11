@@ -1,0 +1,7 @@
+{
+  "name": "cups_client",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
