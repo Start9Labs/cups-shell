@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { Component } from '@angular/core'
+import { HttpService } from '../http-service'
+import { LoadingController } from '@ionic/angular'
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 
 @Component({
   selector: 'app-home',
@@ -6,7 +9,27 @@ import { Component } from '@angular/core';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage {
+  torAddress = ''
+  iFrame: SafeResourceUrl
 
-  constructor() {}
+  constructor (
+    private sanitizer: DomSanitizer,
+    private httpService: HttpService,
+    private readonly loadingCtrl: LoadingController,
+  ) { }
 
+  async connect () {
+    const loader = await this.loadingCtrl.create({
+      message: 'Connecting to Server...',
+      spinner: 'lines',
+      cssClass: 'loader',
+    })
+    await loader.present()
+
+    // path = await this.httpService.request()
+    const path = 'https://fr.wikipedia.org/wiki/Main_Page'
+    this.iFrame = this.sanitizer.bypassSecurityTrustResourceUrl(path)
+
+    await loader.dismiss()
+  }
 }

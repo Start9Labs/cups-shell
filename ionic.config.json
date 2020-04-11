@@ -1,7 +1,8 @@
 {
   "name": "cups_client",
   "integrations": {
-    "capacitor": {}
+    "capacitor": {},
+    "cordova": {}
   },
   "type": "angular"
 }
