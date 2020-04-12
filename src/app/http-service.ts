@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { HTTP } from '@ionic-native/http/ngx'
-import { TorClient, HttpVerb } from 'capacitor-tor-client'
+import { TorClient, HttpRequest } from 'capacitor-tor-client'
 
 @Injectable({
   providedIn: 'root',
@@ -17,16 +17,11 @@ export class HttpService {
     await this.torClient.initTor()
   }
 
-  async request (): Promise<any> {
+  async request (options: HttpRequest): Promise<any> {
     this.http.setDataSerializer('json')
 
     try {
-      return this.torClient.sendReq({
-        verb: HttpVerb.GET,
-        host: '<address>.onion',
-        port: 5959,
-        path: '/version',
-      })
+      return this.torClient.sendReq(options)
     } catch (e) {
       console.error(e)
       let message: string

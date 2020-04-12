@@ -2,6 +2,7 @@ import { Component } from '@angular/core'
 import { HttpService } from '../http-service'
 import { LoadingController } from '@ionic/angular'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
+import { HttpVerb } from 'capacitor-tor-client'
 
 @Component({
   selector: 'app-home',
@@ -26,10 +27,21 @@ export class HomePage {
     })
     await loader.present()
 
-    // path = await this.httpService.request()
+    // const path = await this.httpService.request({
+    //   verb: HttpVerb.GET,
+    //   host: '<address>.onion',
+    //   port: 5959,
+    //   path: '/version',
+    // })
     const path = 'https://fr.wikipedia.org/wiki/Main_Page'
     this.iFrame = this.sanitizer.bypassSecurityTrustResourceUrl(path)
 
     await loader.dismiss()
+
+    setTimeout(() => this.closeFrame(), 2000)
+  }
+
+  closeFrame () {
+    this.iFrame = undefined
   }
 }
