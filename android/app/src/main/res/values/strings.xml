@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">cups_client</string>
+    <string name="title_activity_main">cups_client</string>
+    <string name="package_name">com.start9labs.cupsclient</string>
+    <string name="custom_url_scheme">com.start9labs.cupsclient</string>
+</resources>

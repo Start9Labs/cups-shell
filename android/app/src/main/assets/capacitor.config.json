@@ -1,0 +1,8 @@
+{
+  "appId": "com.start9labs.cupsclient",
+  "appName": "cups_client",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www",
+  "cordova": {}
+}
