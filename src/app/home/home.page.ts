@@ -13,13 +13,13 @@ export class HomePage {
   torAddress = ''
   iFrame: SafeResourceUrl
 
-  constructor(
+  constructor (
     private readonly sanitizer: DomSanitizer,
     private readonly httpService: HttpService,
     private readonly loadingCtrl: LoadingController,
   ) { }
 
-  async connect() {
+  async connect () {
     const loader = await this.loadingCtrl.create({
       message: 'Connecting to Server...',
       spinner: 'lines',
@@ -29,16 +29,16 @@ export class HomePage {
 
     // init proxy
     const port = await this.httpService.initProxy(this.torAddress)
+    console.log('** PORT **', port)
     // create iFrame path
     let iFrame = `http://localhost:${port}`
     this.iFrame = this.sanitizer.bypassSecurityTrustResourceUrl(iFrame)
+    console.log('** iFrame **', this.iFrame)
 
     await loader.dismiss()
-
-    setTimeout(() => this.closeFrame(), 4000)
   }
 
-  closeFrame() {
+  closeFrame () {
     this.iFrame = undefined
   }
 }

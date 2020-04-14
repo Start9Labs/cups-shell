@@ -22,6 +22,7 @@ repositories {
     flatDir{
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
     }
+    maven { url "https://raw.githubusercontent.com/guardianproject/gpmaven/master" }
 }
 
 dependencies {
@@ -32,6 +33,8 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+    implementation 'org.torproject:tor-android-binary:0.4.2.5'
+    implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
 }
 
 apply from: 'capacitor.build.gradle'
