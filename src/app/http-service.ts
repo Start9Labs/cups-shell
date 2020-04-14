@@ -15,7 +15,6 @@ export class HttpService {
   private services: { [port: number]: WebServer } = {}
 
   constructor(
-    private readonly webServer: WebServer,
     private readonly http: HTTP,
     private readonly storage: Storage,
   ) {
