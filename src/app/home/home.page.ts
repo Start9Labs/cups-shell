@@ -14,8 +14,8 @@ export class HomePage {
   iFrame: SafeResourceUrl
 
   constructor(
-    private sanitizer: DomSanitizer,
-    private httpService: HttpService,
+    private readonly sanitizer: DomSanitizer,
+    private readonly httpService: HttpService,
     private readonly loadingCtrl: LoadingController,
   ) { }
 
@@ -27,18 +27,15 @@ export class HomePage {
     })
     await loader.present()
 
-    // const path = await this.httpService.request({
-    //   verb: HttpVerb.GET,
-    //   host: '<address>.onion',
-    //   port: 5959,
-    //   path: '/version',
-    // })
-    const path = 'https://fr.wikipedia.org/wiki/Main_Page'
-    this.iFrame = this.sanitizer.bypassSecurityTrustResourceUrl(path)
+    // init proxy
+    const port = await this.httpService.initProxy(this.torAddress)
+    // create iFrame path
+    let iFrame = `http://localhost:${port}`
+    this.iFrame = this.sanitizer.bypassSecurityTrustResourceUrl(iFrame)
 
     await loader.dismiss()
 
-    setTimeout(() => this.closeFrame(), 2000)
+    setTimeout(() => this.closeFrame(), 4000)
   }
 
   closeFrame() {

@@ -13,14 +13,14 @@ const { SplashScreen, BackgroundTask } = Plugins
 })
 export class AppComponent {
 
-  constructor (
+  constructor(
     private platform: Platform,
     private httpService: HttpService,
   ) {
     this.initializeApp()
   }
 
-  initializeApp (): void {
+  initializeApp(): void {
     this.platform.ready().then(async () => {
       // init Tor process
       await this.httpService.initTor()
@@ -32,10 +32,12 @@ export class AppComponent {
       setTimeout(() => {
         SplashScreen.hide()
       }, 300)
+
+
     })
   }
 
-  async listenForNotifications (): Promise<void> {
+  async listenForNotifications(): Promise<void> {
     const messages = await this.httpService.request({
       verb: HttpVerb.GET,
       host: '<address>.onion',
