@@ -31,7 +31,6 @@
     "compare-versions": "^3.5.0",
     "cordova-plugin-advanced-http": "^2.4.1",
     "cordova-plugin-file": "^6.0.0",
-    "cordova-plugin-webserver": "^1.0.0",
     "core-js": "^3.4.0",
     "rxjs": "^6.5.0",
     "tslib": "^1.10.0",

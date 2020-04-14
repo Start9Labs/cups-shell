@@ -15,7 +15,8 @@
   </ng-container>
 
   <ng-container *ngIf="iFrame">
-    <iframe id="frame" [src]="iFrame" class="full-screen"></iframe>
+    <iframe id="frame" [src]="iFrame" class="full-screen"
+      sandbox="allow-scripts allow-forms allow-modals allow-orientation-lock allow-popupss"></iframe>
   </ng-container>
 
 </ion-content>

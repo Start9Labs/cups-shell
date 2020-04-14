@@ -13,13 +13,13 @@ export class HomePage {
   torAddress = ''
   iFrame: SafeResourceUrl
 
-  constructor (
+  constructor(
     private sanitizer: DomSanitizer,
     private httpService: HttpService,
     private readonly loadingCtrl: LoadingController,
   ) { }
 
-  async connect () {
+  async connect() {
     const loader = await this.loadingCtrl.create({
       message: 'Connecting to Server...',
       spinner: 'lines',
@@ -41,7 +41,7 @@ export class HomePage {
     setTimeout(() => this.closeFrame(), 2000)
   }
 
-  closeFrame () {
+  closeFrame() {
     this.iFrame = undefined
   }
 }
