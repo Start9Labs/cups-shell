@@ -1,5 +1,5 @@
 {
-  "name": "cups_client",
+  "name": "Cups Client",
   "integrations": {
     "capacitor": {},
     "cordova": {}

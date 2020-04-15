@@ -6,8 +6,8 @@ android {
         applicationId "com.start9labs.cupsclient"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 10000
+        versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -19,10 +19,10 @@ android {
 }
 
 repositories {
+    maven { url "https://raw.githubusercontent.com/guardianproject/gpmaven/master" }
     flatDir{
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
     }
-    maven { url "https://raw.githubusercontent.com/guardianproject/gpmaven/master" }
 }
 
 dependencies {

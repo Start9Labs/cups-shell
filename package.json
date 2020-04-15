@@ -1,7 +1,7 @@
 {
-  "name": "cups_client",
+  "name": "cups-client",
   "description": "client for Cups Messenger",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "Start9 Labs",
   "homepage": "https://start9labs.com",
   "scripts": {

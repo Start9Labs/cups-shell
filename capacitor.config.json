@@ -1,6 +1,6 @@
 {
   "appId": "com.start9labs.cupsclient",
-  "appName": "cups_client",
+  "appName": "Cups Client",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",

@@ -1,4 +1,4 @@
-# cups-client
+# Cups Client
 
 ## Setup Instructions
 
