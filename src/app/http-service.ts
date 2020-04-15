@@ -2,8 +2,12 @@ import { Injectable } from '@angular/core'
 import { HTTP, HTTPResponse } from '@ionic-native/http/ngx'
 import { TorClient, HttpRequest, HttpVerb } from 'capacitor-tor-client'
 import { WebServer, Request, Response } from '@ionic-native/web-server/ngx'
-import BiMap from 'bimap'
 import { Storage } from '@ionic/storage'
+import { Observable } from 'rxjs'
+import BiMap from 'bimap'
+
+import { Plugins } from '@capacitor/core'
+const { BackgroundTask, LocalNotifications } = Plugins
 
 @Injectable({
   providedIn: 'root',
@@ -20,8 +24,14 @@ export class HttpService {
   ) {
   }
 
-  async initTor (): Promise<void> {
-    await this.torClient.initTor()
+  initTor (): Observable<number> {
+    return new Observable(subscriber => {
+      setTimeout(() => { subscriber.next(25) }, 1000)
+      setTimeout(() => { subscriber.next(50) }, 2000)
+      setTimeout(() => { subscriber.next(75) }, 3000)
+      setTimeout(() => { subscriber.next(100); subscriber.complete() }, 4000)
+    })
+    // return this.torClient.initTor()
   }
 
   async initProxy (baseUrl: string): Promise<number> {
@@ -49,10 +59,11 @@ export class HttpService {
     // port
     if (typeof portOrUrl === 'number') {
       service = this.services[portOrUrl]
-      // url
+    // url
     } else {
       service = this.services[this.portMap.val(portOrUrl)]
     }
+    // only stop if exists
     if (service) {
       await service.stop()
     }
@@ -143,5 +154,31 @@ export class HttpService {
       }
       throw new Error(message || 'Unknown Error')
     }
+  }
+
+  async listenForNotifications (torAddress: string): Promise<void> {
+    // should not be beforeExit(). Need to augment plugin: https://github.com/ionic-team/capacitor/issues/69
+    BackgroundTask.beforeExit(async () => {
+      const messages = await this.request({
+        verb: HttpVerb.GET,
+        host: `http://${torAddress}.onion`,
+        path: '/notifications',
+        port: 5959,
+      })
+
+      const quantity = messages.length
+
+      if (!quantity) { return }
+
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: 1,
+            title: 'New Message',
+            body: `You have ${quantity} new messages.`,
+          },
+        ],
+      })
+    })
   }
 }

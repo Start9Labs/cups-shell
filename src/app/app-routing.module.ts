@@ -4,8 +4,12 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router'
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'tor',
     pathMatch: 'full',
+  },
+  {
+    path: 'tor',
+    loadChildren: () => import('./tor/tor.module').then( m => m.TorPageModule),
   },
   {
     path: 'home',
