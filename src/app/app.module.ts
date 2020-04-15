@@ -17,7 +17,7 @@ import { HTTP } from '@ionic-native/http/ngx'
     BrowserModule,
     IonicModule.forRoot(),
     IonicStorageModule.forRoot(),
-    AppRoutingModule
+    AppRoutingModule,
   ],
   providers: [
     HTTP,

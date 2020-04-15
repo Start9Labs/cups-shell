@@ -1,7 +1,7 @@
 import { Component } from '@angular/core'
-import { HttpService } from '../http-service'
 import { LoadingController } from '@ionic/angular'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
+import { ProxyService } from '../services/proxy-service'
 
 @Component({
   selector: 'app-home',
@@ -14,7 +14,7 @@ export class HomePage {
 
   constructor (
     private readonly sanitizer: DomSanitizer,
-    private readonly httpService: HttpService,
+    private readonly proxyService: ProxyService,
     private readonly loadingCtrl: LoadingController,
   ) { }
 
@@ -25,7 +25,7 @@ export class HomePage {
     await loader.present()
 
     // init webserver proxy
-    const port = await this.httpService.initProxy(this.torAddress)
+    const port = await this.proxyService.init()
     // create iFrame
     this.iFrame = this.sanitizer.bypassSecurityTrustResourceUrl(`http://localhost:${port}`)
     // add background listener

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core'
-import { HttpService } from '../http-service'
 import { NavController } from '@ionic/angular'
+import { TorService } from '../services/tor-service'
 
 @Component({
   selector: 'app-tor',
@@ -8,19 +8,17 @@ import { NavController } from '@ionic/angular'
   styleUrls: ['tor.page.scss'],
 })
 export class TorPage {
-  progress = 0
 
   constructor (
     private navCtrl: NavController,
-    private httpService: HttpService,
+    public torService: TorService,
   ) { }
 
   ngOnInit () {
     // init Tor
-    this.httpService.initTor().subscribe(async progress => {
-      this.progress = progress / 100
-      if (this.progress === 1) {
-        await this.navCtrl.navigateRoot(['/home'])
+    this.torService.progress$.subscribe(progress => {
+      if (progress === 1) {
+        this.navCtrl.navigateRoot(['/home'])
       }
     })
   }

@@ -1,4 +1,6 @@
 import { Component } from '@angular/core'
+import { Store } from './store'
+import { TorService } from './services/tor-service'
 
 import { Plugins } from '@capacitor/core'
 const { SplashScreen } = Plugins
@@ -10,8 +12,19 @@ const { SplashScreen } = Plugins
 })
 export class AppComponent {
 
-  constructor () {
+  constructor (
+    private store: Store,
+    private torService: TorService,
+  ) {
+    this.initializeApp()
+  }
+
+  async initializeApp () {
+    // init Tor
+    this.torService.init()
+    // init store
+    await this.store.init()
     // dismiss splash screen
-    SplashScreen.hide()
+    await SplashScreen.hide()
   }
 }
