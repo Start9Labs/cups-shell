@@ -14,14 +14,14 @@ const { Storage } = Plugins
 export class ProxyService {
   private port = 8081
   private portMap: BiMap<number, string> = new BiMap()
-  private services: { [port: number]: WebServer } = {}
+  private services: { [port: number]: WebServer } = { }
 
-  constructor(
+  constructor (
     private readonly httpService: HttpService,
     private readonly store: Store,
   ) { }
 
-  async init(): Promise<number> {
+  async init (): Promise<number> {
     let port = this.portMap.val(this.store.torAddress)
     console.log('** PORT **', port)
     if (port) {
@@ -42,7 +42,7 @@ export class ProxyService {
     return port
   }
 
-  async shutdown(portOrUrl: string | number): Promise<void> {
+  async shutdown (portOrUrl: string | number): Promise<void> {
     let service: WebServer
     // port
     if (typeof portOrUrl === 'number') {
@@ -57,7 +57,7 @@ export class ProxyService {
     }
   }
 
-  private async handler(req: Request): Promise<Response> {
+  private async handler (req: Request): Promise<Response> {
     const baseUrl = this.store.torAddress
     const storageKey = `cache:${baseUrl}:${req.path}`
 
@@ -70,23 +70,28 @@ export class ProxyService {
       }
     }
 
-    console.log('** PROXY REQUEST **', req)
+    console.log('** PROXY REQUEST **', JSON.stringify(req))
 
-    const params = {}
-    for (let [key, val] of req.query.split('&').map(seg => seg.split('='))) {
-      params[key] = val
+    const params = { }
+    if (req.query) {
+      for (let [key, val] of req.query.split('&').map(seg => seg.split('='))) {
+        params[key] = val
+      }
     }
-    req.headers['origin'] = 'http://localhost:8081'
+
+    const headers = typeof req.headers === 'string' ? JSON.parse(req.headers) : req.headers
+    const data = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+
     const res = await this.httpService.rawRequest({
       method: req.method,
       url: req.path,
       params,
-      // data: req.body,
-      headers: req.headers as any,
+      data,
+      headers,
     }).catch(e => ({
       data: String(e),
       status: 500,
-      headers: {},
+      headers: { },
     }))
 
     delete res.headers['Content-Encoding']

@@ -7,6 +7,7 @@ import com.getcapacitor.Plugin;
 
 import java.util.ArrayList;
 
+import http.plugin.HttpPlugin;
 import tor.client.plugin.TorClientPlugin;
 
 public class MainActivity extends BridgeActivity {
