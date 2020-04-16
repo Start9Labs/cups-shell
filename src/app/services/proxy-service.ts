@@ -22,14 +22,11 @@ export class ProxyService {
 
   async init (): Promise<number> {
     let port = this.portMap.val(this.store.torAddress)
-    console.log('** PORT **', port)
     if (port) {
       return port
     }
     const server = new WebServer()
     port = this.port++
-    port = port++
-    console.log('** PORT 2 **', port)
 
     server.onRequest().subscribe(req => {
       this.handler(req)
