@@ -5,6 +5,7 @@ import { HttpService } from './http-service'
 import { Store } from '../store'
 
 import { Plugins } from '@capacitor/core'
+import { HttpResponse } from 'capacitor-http'
 const { Storage } = Plugins
 
 @Injectable({
@@ -13,14 +14,14 @@ const { Storage } = Plugins
 export class ProxyService {
   private port = 8081
   private portMap: BiMap<number, string> = new BiMap()
-  private services: { [port: number]: WebServer } = { }
+  private services: { [port: number]: WebServer } = {}
 
-  constructor (
+  constructor(
     private readonly httpService: HttpService,
     private readonly store: Store,
   ) { }
 
-  async init (): Promise<number> {
+  async init(): Promise<number> {
     let port = this.portMap.val(this.store.torAddress)
     if (port) {
       return port
@@ -31,21 +32,21 @@ export class ProxyService {
     server.onRequest().subscribe(req => {
       this.handler(req)
         .then(res => server.sendResponse(req.requestId, res)
-        .catch(console.error))
+          .catch(console.error))
     })
-    await server.start(port) // hopefully this wont run forever
+    await server.start(port)
 
     this.portMap.push(port, this.store.torAddress)
     this.services[port] = server
     return port
   }
 
-  async shutdown (portOrUrl: string | number): Promise<void> {
+  async shutdown(portOrUrl: string | number): Promise<void> {
     let service: WebServer
     // port
     if (typeof portOrUrl === 'number') {
       service = this.services[portOrUrl]
-    // url
+      // url
     } else {
       service = this.services[this.portMap.val(portOrUrl)]
     }
@@ -55,7 +56,7 @@ export class ProxyService {
     }
   }
 
-  private async handler (req: Request): Promise<Response> {
+  private async handler(req: Request): Promise<Response> {
     const baseUrl = this.store.torAddress
     const storageKey = `cache:${baseUrl}:${req.path}`
 
@@ -70,13 +71,22 @@ export class ProxyService {
 
     console.log('** PROXY REQUEST **', req)
 
+    const params = {}
+    for (let [key, val] of req.query.split('&').map(seg => seg.split('='))) {
+      params[key] = val
+    }
+    req.headers['origin'] = 'http://localhost:8081'
     const res = await this.httpService.rawRequest({
       method: req.method,
       url: req.path,
-      // params: req.query,
+      params,
       // data: req.body,
       headers: req.headers as any,
-    })
+    }).catch(e => ({
+      data: String(e),
+      status: 500,
+      headers: {},
+    }))
 
     delete res.headers['Content-Encoding']
     res.headers['Content-Length'] = String(res.data.length)
@@ -88,7 +98,7 @@ export class ProxyService {
       headers: res.headers,
     }
 
-    if (shouldCache) {
+    if (shouldCache && res.status >= 200 && res.status < 400) {
       await Storage.set({
         key: storageKey,
         value: JSON.stringify(result),
