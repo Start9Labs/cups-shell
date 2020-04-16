@@ -23,7 +23,6 @@ export class ProxyService {
 
   async init (): Promise<number> {
     let port = this.portMap.val(this.store.torAddress)
-    console.log('** PORT **', port)
     if (port) {
       return port
     }

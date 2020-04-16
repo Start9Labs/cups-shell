@@ -1,4 +1,4 @@
-# Cups Client
+# Cups Shell
 
 ## Setup Instructions
 
@@ -6,9 +6,9 @@
 
 `npm i -g @ionic/cli cordova`
 
-`git clone https://github.com/Start9Labs/cups-client.git`
+`git clone https://github.com/Start9Labs/cups-shell.git`
 
-`cd cups-client`
+`cd cups-shell`
 
 `npm i`
 
