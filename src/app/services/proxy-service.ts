@@ -76,9 +76,9 @@ export class ProxyService {
     const res = await this.httpService.rawRequest({
       method: req.method,
       url: req.path,
-      // params: JSON.parse(req.query),
-      // data: JSON.parse(req.body),
-      // headers: JSON.parse(req.headers),
+      // params: req.query,
+      // data: req.body,
+      headers: req.headers as any,
     })
 
     delete res.headers['Content-Encoding']
