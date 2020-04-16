@@ -35,7 +35,7 @@ export class ProxyService {
         .then(res => server.sendResponse(req.requestId, res)
           .catch(console.error))
     })
-    await server.start(port) // hopefully this wont run forever
+    await server.start(port)
 
     this.portMap.push(port, this.store.torAddress)
     this.services[port] = server
@@ -76,6 +76,7 @@ export class ProxyService {
     for (let [key, val] of req.query.split('&').map(seg => seg.split('='))) {
       params[key] = val
     }
+    req.headers['origin'] = 'http://localhost:8081'
     const res = await this.httpService.rawRequest({
       method: req.method,
       url: req.path,

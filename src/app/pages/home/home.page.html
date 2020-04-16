@@ -14,7 +14,8 @@
         </ion-label>
         <ion-input type="password" name="password" [(ngModel)]="password"></ion-input>
       </ion-item>
-      <ion-button class="ion-margin-top" [disabled]="!torAddress || !password" type="submit" expand="block" fill="outline">
+      <ion-button class="ion-margin-top" [disabled]="!torAddress || !password" type="submit" expand="block"
+        fill="outline">
         Connect
       </ion-button>
     </form>
@@ -22,7 +23,7 @@
 
   <ng-container *ngIf="iFrame">
     <iframe id="frame" [src]="iFrame" class="full-screen"
-      sandbox="allow-scripts allow-forms allow-modals allow-orientation-lock allow-popupss"></iframe>
+      sandbox="allow-scripts allow-forms allow-modals allow-popups allow-same-origin"></iframe>
   </ng-container>
 
 </ion-content>
