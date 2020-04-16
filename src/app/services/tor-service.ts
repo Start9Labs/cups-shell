@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { TorClient, HttpRequest } from 'capacitor-tor-client'
+import { TorClient } from 'capacitor-tor-client'
 import { BehaviorSubject } from 'rxjs'
 
 @Injectable({
@@ -15,24 +15,11 @@ export class TorService {
     //   if (progress === 1) { this.progress$.complete() }
     // })
 
-    setTimeout(() => { this.progress$.next(.25) }, 1000)
-    setTimeout(() => { this.progress$.next(.5) }, 2000)
-    setTimeout(() => { this.progress$.next(.75) }, 3000)
-    setTimeout(() => { this.progress$.next(1); this.progress$.complete() }, 4000)
-  }
-
-  async request (options: HttpRequest): Promise<any> {
-    try {
-      return this.torClient.sendReq(options)
-    } catch (e) {
-      console.error(e)
-      let message: string
-      try {
-        message = JSON.parse(e.error).message
-      } catch (e) {
-        message = e.error
-      }
-      throw new Error(message || 'Unknown Error')
-    }
+    this.torClient.initTor()
+    setTimeout(() => { this.progress$.next(.25) }, 1500)
+    setTimeout(() => { this.progress$.next(.4) }, 2000)
+    setTimeout(() => { this.progress$.next(.6) }, 3000)
+    setTimeout(() => { this.progress$.next(.9) }, 4500)
+    setTimeout(() => { this.progress$.next(1); this.progress$.complete() }, 5500)
   }
 }

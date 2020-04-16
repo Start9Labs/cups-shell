@@ -8,7 +8,13 @@
         </ion-label>
         <ion-input [(ngModel)]="torAddress" name="torAddress"></ion-input>
       </ion-item>
-      <ion-button class="ion-margin-top" [disabled]="!torAddress" type="submit" expand="block" fill="outline">
+      <ion-item>
+        <ion-label position="floating">
+          <ion-text color="medium">Password</ion-text>
+        </ion-label>
+        <ion-input type="password" name="password" [(ngModel)]="password"></ion-input>
+      </ion-item>
+      <ion-button class="ion-margin-top" [disabled]="!torAddress || !password" type="submit" expand="block" fill="outline">
         Connect
       </ion-button>
     </form>

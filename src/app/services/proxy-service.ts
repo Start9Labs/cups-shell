@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core'
 import { WebServer, Request, Response } from '@ionic-native/web-server/ngx'
 import BiMap from 'bimap'
-import { HttpService, Method } from './http-service'
+import { HttpService } from './http-service'
+import { Store } from '../store'
 
 import { Plugins } from '@capacitor/core'
-import { Store } from '../store'
 const { Storage } = Plugins
 
 @Injectable({
@@ -18,19 +18,21 @@ export class ProxyService {
   constructor (
     private readonly httpService: HttpService,
     private readonly store: Store,
-  ) {
-  }
+  ) { }
 
   async init (): Promise<number> {
     let port = this.portMap.val(this.store.torAddress)
+    console.log('** PORT **', port)
     if (port) {
       return port
     }
     const server = new WebServer()
     port = this.port++
+    port = port++
+    console.log('** PORT 2 **', port)
 
     server.onRequest().subscribe(req => {
-      this.handler(this.store.torAddress, req)
+      this.handler(req)
         .then(res => server.sendResponse(req.requestId, res)
         .catch(console.error))
     })
@@ -56,26 +58,32 @@ export class ProxyService {
     }
   }
 
-  async handler (baseUrl: string, req: Request): Promise<Response> {
-    const shouldCache = req.headers['cache-control'] !== 'no-store'
+  private async handler (req: Request): Promise<Response> {
+    const baseUrl = this.store.torAddress
+    const storageKey = `cache:${baseUrl}:${req.path}`
+
+    const shouldCache = req.headers['Cache-Control'] !== 'no-store'
 
     if (shouldCache) {
-      const cached = (await Storage.get({ key: `cache:${baseUrl}:${req.path}` })).value
+      const cached = (await Storage.get({ key: storageKey })).value
       if (cached) {
         return JSON.parse(cached)
       }
     }
 
-    const res = await this.httpService.rawRequest(`http://${baseUrl}/${req.path}`, {
-      method: req.method.toLowerCase() as Method,
-      headers: JSON.parse(req.headers),
-      data: JSON.parse(req.body),
-      params: JSON.parse(req.query),
+    console.log('** PROXY REQUEST **', req)
+
+    const res = await this.httpService.rawRequest({
+      method: req.method,
+      url: req.path,
+      // params: JSON.parse(req.query),
+      // data: JSON.parse(req.body),
+      // headers: JSON.parse(req.headers),
     })
 
-    delete res.headers['content-encoding']
-    res.headers['content-length'] = String(res.data.length)
-    res.headers['cache-control'] = 'no-store'
+    delete res.headers['Content-Encoding']
+    res.headers['Content-Length'] = String(res.data.length)
+    res.headers['Cache-Control'] = 'no-store'
 
     const result: Response = {
       status: res.status,
@@ -85,7 +93,7 @@ export class ProxyService {
 
     if (shouldCache) {
       await Storage.set({
-        key: `cache:${baseUrl}:${req.path}`,
+        key: storageKey,
         value: JSON.stringify(result),
       })
     }

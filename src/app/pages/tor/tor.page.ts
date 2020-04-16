@@ -1,6 +1,6 @@
 import { Component } from '@angular/core'
 import { NavController } from '@ionic/angular'
-import { TorService } from '../services/tor-service'
+import { TorService } from '../../services/tor-service'
 
 @Component({
   selector: 'app-tor',
