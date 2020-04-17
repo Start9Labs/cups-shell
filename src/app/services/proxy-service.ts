@@ -71,6 +71,8 @@ export class ProxyService {
 
     console.log('** PROXY REQUEST **', JSON.stringify(req))
 
+    //"{referer=http://localhost/home, remote-addr=127.0.0.1, accept-language=en-US, http-client-ip=127.0.0.1, host=localhost:8081, upgrade-insecure-requests=1, x-requested-with=com.start9labs.cupsmessenger, connection=keep-alive, accept-encoding=gzip, deflate, user-agent=Mozilla/5.0 (Linux; Android 9; AOSP on IA Emulator Build/PSR1.180720.117; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/69.0.3497.100 Mobile Safari/537.36, accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8}"
+
     const params = { }
     if (req.query) {
       for (let [key, val] of req.query.split('&').map(seg => seg.split('='))) {
