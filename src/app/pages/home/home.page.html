@@ -1,6 +1,6 @@
-<ion-content [fullscreen]="true">
+<ion-content>
 
-  <ng-container *ngIf="!iFrame">
+  <ng-container *ngIf="showForm && !iFrame">
     <form class="ion-margin" (submit)="connect()">
       <ion-item>
         <ion-label position="floating">

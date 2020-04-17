@@ -27,4 +27,8 @@ export class HttpService {
     console.log('** RES **', res)
     return res
   }
+
+  async exactRequest (options: HttpOptions): Promise<HttpResponse> {
+    return HttpPluginNativeImpl.request(options)
+  }
 }
