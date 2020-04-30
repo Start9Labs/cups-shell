@@ -5,7 +5,6 @@ import { HttpService } from './http-service'
 import { Store } from '../store'
 
 import { Plugins } from '@capacitor/core'
-import { HttpResponse } from 'capacitor-http'
 const { Storage } = Plugins
 
 @Injectable({
@@ -14,14 +13,14 @@ const { Storage } = Plugins
 export class ProxyService {
   private port = 8081
   private portMap: BiMap<number, string> = new BiMap()
-  private services: { [port: number]: WebServer } = {}
+  private services: { [port: number]: WebServer } = { }
 
-  constructor(
+  constructor (
     private readonly httpService: HttpService,
     private readonly store: Store,
   ) { }
 
-  async init(): Promise<number> {
+  async init (): Promise<number> {
     let port = this.portMap.val(this.store.torAddress)
     if (port) {
       return port
@@ -41,7 +40,7 @@ export class ProxyService {
     return port
   }
 
-  async shutdown(portOrUrl: string | number): Promise<void> {
+  async shutdown (portOrUrl: string | number): Promise<void> {
     let service: WebServer
     // port
     if (typeof portOrUrl === 'number') {
@@ -56,7 +55,7 @@ export class ProxyService {
     }
   }
 
-  private async handler(req: Request): Promise<Response> {
+  private async handler (req: Request): Promise<Response> {
     const baseUrl = this.store.torAddress
     const storageKey = `cache:${baseUrl}:${req.path}`
 
@@ -71,7 +70,7 @@ export class ProxyService {
 
     console.log('** PROXY REQUEST **', req)
 
-    const params = {}
+    const params = { }
     for (let [key, val] of req.query.split('&').map(seg => seg.split('='))) {
       params[key] = val
     }
@@ -85,7 +84,7 @@ export class ProxyService {
     }).catch(e => ({
       data: String(e),
       status: 500,
-      headers: {},
+      headers: { },
     }))
 
     delete res.headers['Content-Encoding']
