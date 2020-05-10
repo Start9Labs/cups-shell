@@ -1,6 +1,8 @@
-import { Component } from '@angular/core'
+import { Component, NgZone } from '@angular/core'
 import { NavController } from '@ionic/angular'
 import { TorService } from '../../services/tor-service'
+import { Subscription } from 'rxjs'
+import { Store } from 'src/app/store'
 
 @Component({
   selector: 'app-tor',
@@ -8,18 +10,32 @@ import { TorService } from '../../services/tor-service'
   styleUrls: ['tor.page.scss'],
 })
 export class TorPage {
+  progressSub: Subscription
+  progress = 0
 
   constructor (
-    private navCtrl: NavController,
-    public torService: TorService,
+    private readonly navCtrl: NavController,
+    private readonly torService: TorService,
+    private readonly zone: NgZone,
+    private readonly store: Store,
   ) { }
 
   ngOnInit () {
-    // init Tor
-    this.torService.progress$.subscribe(progress => {
-      if (progress === 1) {
-        this.navCtrl.navigateRoot(['/home'])
-      }
+    this.progressSub = this.torService.watchProgress().subscribe(p => {
+      this.zone.run(() => {
+        this.progress = p / 100
+      })
+      if (p === 100) { this.navigate() }
     })
+  }
+
+  private async navigate (): Promise<void> {
+    await this.navCtrl.navigateRoot(['/home'])
+
+    // if (this.store.password) {
+    //   await this.navCtrl.navigateRoot(['/webview'])
+    // } else {
+    //   await this.navCtrl.navigateRoot(['/home'])
+    // }
   }
 }

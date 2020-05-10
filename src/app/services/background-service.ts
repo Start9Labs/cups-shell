@@ -2,26 +2,30 @@ import { Injectable } from '@angular/core'
 import { HttpService } from './http-service'
 import { Store } from '../store'
 
-import { Plugins } from '@capacitor/core'
+import { Plugins, PluginListenerHandle } from '@capacitor/core'
 const { App, BackgroundTask, LocalNotifications } = Plugins
 
 @Injectable({
   providedIn: 'root',
 })
 export class BackgroundService {
+  private listener: PluginListenerHandle
+
   constructor (
     private readonly httpService: HttpService,
     private readonly store: Store,
   ) { }
 
-  async listenForNotifications (): Promise<void> {
-    App.addListener('appStateChange', (state) => {
+  async addListener (): Promise<void> {
+    if (this.listener) { return }
+
+    this.listener = App.addListener('appStateChange', (state) => {
       if (!state.isActive) {
         // should not be beforeExit(). Need to augment plugin: https://github.com/ionic-team/capacitor/issues/69
         const taskId = BackgroundTask.beforeExit(async () => {
-          const res = await this.httpService.request<{ messages: string[] }>({
+          const res = await this.httpService.torRequest<{ messages: string[] }>({
             method: 'GET',
-            url: '/messages',
+            url: `${this.store.torAddress}/messages`,
             headers: { Authorization: 'Basic ' + btoa(`me:${this.store.password}`) },
           })
 
@@ -43,5 +47,12 @@ export class BackgroundService {
         })
       }
     })
+  }
+
+  removeListener () {
+    if (this.listener) {
+      this.listener.remove()
+      this.listener = undefined
+    }
   }
 }

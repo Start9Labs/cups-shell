@@ -1,8 +1,7 @@
 {
   "name": "Cups Messenger",
   "integrations": {
-    "capacitor": {},
-    "cordova": {}
+    "capacitor": {}
   },
   "type": "angular"
 }

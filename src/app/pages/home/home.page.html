@@ -1,29 +1,21 @@
-<ion-content>
+<ion-content class="ion-padding">
 
-  <ng-container *ngIf="showForm && !iFrame">
-    <form class="ion-margin" (submit)="connect()">
-      <ion-item>
-        <ion-label position="floating">
-          <ion-text color="medium">Cups Tor Address</ion-text>
-        </ion-label>
-        <ion-input [(ngModel)]="torAddress" name="torAddress"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label position="floating">
-          <ion-text color="medium">Password</ion-text>
-        </ion-label>
-        <ion-input type="password" name="password" [(ngModel)]="password"></ion-input>
-      </ion-item>
-      <ion-button class="ion-margin-top" [disabled]="!torAddress || !password" type="submit" expand="block"
-        fill="outline">
-        Connect
-      </ion-button>
-    </form>
-  </ng-container>
-
-  <ng-container *ngIf="iFrame">
-    <iframe id="frame" [src]="iFrame" class="full-screen"
-      sandbox="allow-scripts allow-forms allow-modals allow-popups allow-same-origin"></iframe>
-  </ng-container>
+  <form (submit)="connect()">
+    <ion-item>
+      <ion-label position="floating">
+        <ion-text color="medium">Cups Tor Address</ion-text>
+      </ion-label>
+      <ion-input name="torAddressInput" [(ngModel)]="torAddressInput"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">
+        <ion-text color="medium">Password</ion-text>
+      </ion-label>
+      <ion-input type="password" name="passwordInput" [(ngModel)]="passwordInput"></ion-input>
+    </ion-item>
+    <ion-button class="ion-margin-top" [disabled]="!torAddressInput || !passwordInput" type="submit" expand="block" fill="outline">
+      Connect
+    </ion-button>
+  </form>
 
 </ion-content>

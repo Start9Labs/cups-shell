@@ -1,34 +1,37 @@
 import { Injectable } from '@angular/core'
-import { HttpPluginNativeImpl, HttpResponse, HttpOptions } from 'capacitor-http'
-import { Store } from '../store'
+import { HttpPluginNativeImpl, HttpOptions } from 'capacitor-http'
+import { TorService } from './tor-service'
 
 @Injectable({
   providedIn: 'root',
 })
 export class HttpService {
-  constructor (
-    private readonly store: Store,
-  ) { }
 
-  async request<T> (options: HttpOptions): Promise<T> {
-    const res = await this.rawRequest(options)
-    return res.data
-  }
-
-  async rawRequest (options: HttpOptions): Promise<HttpResponse> {
-    options.url = `http://${this.store.torAddress}${options.url}`
+  async torRequest<T> (options: HttpOptions): Promise<T> {
+    options.headers = Object.assign(options.headers || { }, {
+      'Content-Type': 'application/json',
+    })
     options.proxy = {
       host: 'localhost',
-      port: 59590,
+      port: TorService.PORT,
       protocol: 'SOCKS',
     }
-    console.log('** REQ **', options)
-    const res = await HttpPluginNativeImpl.request(options)
-    console.log('** RES **', res)
-    return res
-  }
+    options.url = `http://${options.url}`
 
-  async exactRequest (options: HttpOptions): Promise<HttpResponse> {
-    return HttpPluginNativeImpl.request(options)
+    try {
+      console.log('** RES **', options)
+      const res = await HttpPluginNativeImpl.request(options)
+      return res.data || { }
+    } catch (e) {
+      console.error(e)
+
+      let message: string
+      try {
+        message = JSON.parse(e.error).message
+      } catch (e) {
+        message = e.error
+      }
+      throw new Error(message || 'Unknown Error')
+    }
   }
 }

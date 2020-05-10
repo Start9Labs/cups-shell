@@ -3,7 +3,7 @@
   <ion-grid style="height: 100%">
     <ion-row style="height: 100%;">
       <ion-col class="ion-align-self-center">
-        <ion-progress-bar color="danger" [value]="torService.progress$ | async" buffer="0"></ion-progress-bar>
+        <ion-progress-bar color="danger" [value]="progress" buffer="0"></ion-progress-bar>
         <p>Establishing Tor connection</p>
       </ion-col>
     </ion-row>

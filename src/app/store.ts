@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core'
-import { BehaviorSubject } from 'rxjs'
 
 import { Plugins } from '@capacitor/core'
 const { Storage } = Plugins
@@ -8,17 +7,16 @@ const { Storage } = Plugins
   providedIn: 'root',
 })
 export class Store {
-  readonly authState$ = new BehaviorSubject<boolean>(false)
-  torAddress = ''
-  password = ''
+  torAddress: string
+  password: string
 
   async init (): Promise<void> {
     const [torRes, passRes] = await Promise.all([
       Storage.get({ key: 'torAddress' }),
       Storage.get({ key: 'password' }),
     ])
-    this.torAddress = torRes.value
-    this.password = passRes.value
+    this.torAddress = torRes.value || ''
+    this.password = passRes.value || ''
   }
 
   async saveCreds (torAddress: string, password: string): Promise<void> {

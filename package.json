@@ -25,7 +25,7 @@
     "@ionic/angular": "^5.1.0",
     "bimap": "^0.0.15",
     "capacitor-http": "file:../capacitor-http",
-    "capacitor-s9-webview-plugin": "file:../capacitor-s9-webview-plugin",
+    "capacitor-s9-webview": "file:../capacitor-s9-webview-plugin",
     "capacitor-tor": "file:../capacitor-tor",
     "core-js": "^3.4.0",
     "rxjs": "^6.5.0",
