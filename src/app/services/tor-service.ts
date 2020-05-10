@@ -10,16 +10,14 @@ export class TorService {
   progress$ = new BehaviorSubject<number>(0)
 
   async init (): Promise<void> {
-    this.tor.initTor().subscribe(progress => {
+    this.tor.start().subscribe(progress => {
       this.progress$.next(progress)
-      if (progress === 1) { this.progress$.complete() }
     })
 
-    // this.tor.initTor()
-    // setTimeout(() => { this.progress$.next(.25) }, 1500)
-    // setTimeout(() => { this.progress$.next(.4) }, 2000)
-    // setTimeout(() => { this.progress$.next(.6) }, 3000)
-    // setTimeout(() => { this.progress$.next(.9) }, 4500)
-    // setTimeout(() => { this.progress$.next(1); this.progress$.complete() }, 5500)
+    // setTimeout(() => { this.progress$.next(25) }, 1500)
+    // setTimeout(() => { this.progress$.next(40) }, 2000)
+    // setTimeout(() => { this.progress$.next(60) }, 3000)
+    // setTimeout(() => { this.progress$.next(90) }, 4500)
+    // setTimeout(() => { this.progress$.next(100) }, 5500)
   }
 }

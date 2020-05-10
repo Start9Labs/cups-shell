@@ -12,16 +12,20 @@ export class Store {
   torAddress = ''
   password = ''
 
-  constructor () { }
-
   async init (): Promise<void> {
-    this.torAddress = (await Storage.get({ key: 'torAddress' })).value
-    this.password = (await Storage.get({ key: 'password' })).value
+    const [torRes, passRes] = await Promise.all([
+      Storage.get({ key: 'torAddress' }),
+      Storage.get({ key: 'password' }),
+    ])
+    this.torAddress = torRes.value
+    this.password = passRes.value
   }
 
   async saveCreds (torAddress: string, password: string): Promise<void> {
-    await Storage.set({ key: 'torAddress', value: torAddress })
-    await Storage.set({ key: 'password', value: password })
+    await Promise.all([
+      Storage.set({ key: 'torAddress', value: torAddress }),
+      Storage.set({ key: 'password', value: password }),
+    ])
     this.torAddress = torAddress
     this.password = password
   }
