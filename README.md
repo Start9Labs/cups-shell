@@ -4,7 +4,7 @@
 
 **Make sure you have git, node, and npm installed**
 
-`npm i -g @ionic/cli cordova`
+`npm i -g @ionic/cli`
 
 `git clone https://github.com/Start9Labs/cups-shell.git`
 
