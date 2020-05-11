@@ -1,4 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core'
+import { NavController } from '@ionic/angular'
 // import { BackgroundService } from 'src/app/services/background-service'
 import { WebviewPluginNative } from 'capacitor-s9-webview'
 import { TorService } from 'src/app/services/tor-service'
@@ -15,6 +16,7 @@ export class WebviewPage {
   webviewLoading = false
 
   constructor (
+    private readonly navCtrl: NavController,
     // private readonly backgroundService: BackgroundService,
     private readonly store: Store,
   ) { }
@@ -76,5 +78,6 @@ export class WebviewPage {
   async destroyWebview (): Promise<void> {
     this.webview.close()
     this.webview = undefined
+    await this.navCtrl.navigateRoot(['/home'])
   }
 }
