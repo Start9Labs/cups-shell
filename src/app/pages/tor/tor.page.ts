@@ -16,8 +16,8 @@ export class TorPage {
   constructor (
     private readonly navCtrl: NavController,
     private readonly torService: TorService,
-    private readonly zone: NgZone,
     private readonly store: Store,
+    private readonly zone: NgZone,
   ) { }
 
   ngOnInit () {
@@ -29,13 +29,13 @@ export class TorPage {
     })
   }
 
-  private async navigate (): Promise<void> {
-    await this.navCtrl.navigateRoot(['/home'])
-
-    // if (this.store.password) {
-    //   await this.navCtrl.navigateRoot(['/webview'])
-    // } else {
-    //   await this.navCtrl.navigateRoot(['/home'])
-    // }
+  private navigate (): void {
+    let route: string
+    if (this.store.torAddress && this.store.password) {
+      route = '/webview'
+    } else {
+      route = '/home'
+    }
+    this.zone.run(() => { this.navCtrl.navigateRoot([route]) })
   }
 }

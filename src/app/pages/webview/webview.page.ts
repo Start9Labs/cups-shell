@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core'
+import { Component, ElementRef, ViewChild, NgZone } from '@angular/core'
 import { NavController } from '@ionic/angular'
 // import { BackgroundService } from 'src/app/services/background-service'
 import { WebviewPluginNative } from 'capacitor-s9-webview'
@@ -19,6 +19,7 @@ export class WebviewPage {
     private readonly navCtrl: NavController,
     // private readonly backgroundService: BackgroundService,
     private readonly store: Store,
+    private readonly zone: NgZone,
   ) { }
 
   ngAfterViewInit () {
@@ -39,18 +40,12 @@ export class WebviewPage {
       rpchandler: async (_host: string, method: string, data: any) => {
         switch (method) {
           case '/close':
-            // this.backgroundService.removeListener()
-            this.store.removePassword()
             this.destroyWebview()
           case '/getConfigValue':
             if (data[0] === 'password') { return this.store.password }
           default:
             throw new Error('unimplemented')
         }
-      },
-      script: {
-        javascript: `fetch('/api', { method: "POST", body: "BODE" }).then(res => res.json()).then(console.log).catch(console.error);`,
-        injectionTime: 0,
       },
     })
 
@@ -76,8 +71,10 @@ export class WebviewPage {
   }
 
   async destroyWebview (): Promise<void> {
+    // this.backgroundService.removeListener()
+    await this.store.removePassword()
     this.webview.close()
     this.webview = undefined
-    await this.navCtrl.navigateRoot(['/home'])
+    this.zone.run(() => { this.navCtrl.navigateRoot(['/home']) })
   }
 }
