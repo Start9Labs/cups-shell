@@ -13,7 +13,7 @@ import { Store } from 'src/app/store'
 export class WebviewPage {
   @ViewChild('webviewEl') webviewEl: ElementRef
   webview: WebviewPluginNative
-  webviewLoading = false
+  webviewLoading = true
 
   constructor (
     private readonly navCtrl: NavController,
@@ -29,7 +29,7 @@ export class WebviewPage {
   async createWebview (): Promise<void> {
     this.webview = new WebviewPluginNative()
 
-    await this.webview.open({
+    this.webview.open({
       url: `onion://${this.store.torAddress}`,
       element: this.webviewEl.nativeElement,
       torproxy: {
@@ -49,24 +49,15 @@ export class WebviewPage {
       },
     })
 
-    // add background listener
-    // this.backgroundService.addListener()
-
     this.webview.onPageLoaded(() => {
-      console.log('page loaded')
-    })
-
-    this.webview.onProgress(progress => {
-      console.log('progress', progress)
-    })
-
-    this.webview.handleNavigation(event => {
-      if (event.newWindow) {
-        event.complete(false)
-        window.open(event.url)
-      } else {
-        event.complete(true)
-      }
+      this.zone.run(() => {
+        // we give it an extra half second to display the page
+        setTimeout(() => {
+          this.webviewLoading = false
+          // add background listener
+          // this.backgroundService.addListener()
+        }, 500)
+      })
     })
   }
 

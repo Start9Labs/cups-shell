@@ -11,9 +11,8 @@
 
 <ion-content>
 
-  <div slot="fixed">
-    <ion-spinner *ngIf="webviewLoading"></ion-spinner>
-    <div id="webviewEl" #webviewEl></div>
-  </div>
+  <ion-spinner *ngIf="webviewLoading" class="center" name="lines" color="warning"></ion-spinner>
+
+  <div [hidden]="webviewLoading" class="entire-screen" #webviewEl></div>
 
 </ion-content>

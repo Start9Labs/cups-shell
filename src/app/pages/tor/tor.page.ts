@@ -36,6 +36,6 @@ export class TorPage {
     } else {
       route = '/home'
     }
-    this.zone.run(() => { this.navCtrl.navigateRoot([route]) })
+    this.zone.run(async () => { this.navCtrl.navigateRoot([route]) })
   }
 }

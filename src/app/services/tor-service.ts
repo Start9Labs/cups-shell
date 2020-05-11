@@ -12,7 +12,7 @@ export class TorService {
   watchProgress (): Observable<number> { return this.progress$.asObservable() }
 
   async init (): Promise<void> {
-    this.tor.start({ socksPort: TorService.PORT, initTimeout: 20000 }).subscribe({
+    this.tor.start({ socksPort: TorService.PORT, initTimeout: 60000 }).subscribe({
       next: (progress: number) => {
         this.progress$.next(progress)
       },

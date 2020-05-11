@@ -1,5 +1,6 @@
 import { Component, NgZone } from '@angular/core'
 import { LoadingController, AlertController, NavController } from '@ionic/angular'
+import { WebviewPluginNative } from 'capacitor-s9-webview'
 import { HttpService } from 'src/app/services/http-service'
 import { Store } from 'src/app/store'
 
@@ -31,6 +32,8 @@ export class HomePage {
   async connect (): Promise<void> {
     const loader = await this.loadingCtrl.create({
       message: 'Authenticating...',
+      spinner: 'lines',
+      cssClass: 'loader',
     })
     await loader.present()
 
@@ -60,5 +63,16 @@ export class HomePage {
     }
 
     this.navCtrl.navigateRoot(['/webview'])
+  }
+
+  async clearCache (): Promise<void> {
+    const loader = await this.loadingCtrl.create({
+      message: 'Clearing Cache',
+      spinner: 'lines',
+      cssClass: 'loader',
+    })
+    await loader.present()
+    await new WebviewPluginNative().clearCache('*', '*')
+    await loader.dismiss()
   }
 }
