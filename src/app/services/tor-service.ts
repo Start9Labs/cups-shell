@@ -6,7 +6,7 @@ import { BehaviorSubject, Observable } from 'rxjs'
   providedIn: 'root',
 })
 export class TorService {
-  static readonly PORT = 59590
+  static readonly PORT = 59591
   private readonly tor = new Tor()
   private progress$ = new BehaviorSubject<number>(0)
   watchProgress (): Observable<number> { return this.progress$.asObservable() }
