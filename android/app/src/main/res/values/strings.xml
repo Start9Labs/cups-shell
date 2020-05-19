@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Cups</string>
     <string name="title_activity_main">Cups</string>
-    <string name="package_name">com.start9labs.cupsmessenger</string>
-    <string name="custom_url_scheme">com.start9labs.cupsmessenger</string>
+    <string name="package_name">com.start9labs.cupsmessager</string>
+    <string name="custom_url_scheme">com.start9labs.cupsmessager</string>
 </resources>

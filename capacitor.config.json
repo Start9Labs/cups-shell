@@ -1,6 +1,6 @@
 {
-  "appId": "com.start9labs.cupsmessenger",
-  "appName": "Cups Messenger",
+  "appId": "com.start9labs.cupsmessager",
+  "appName": "Cups",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www"
