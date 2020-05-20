@@ -1,7 +1,7 @@
 import { Component, NgZone } from '@angular/core'
-import { LoadingController, AlertController, NavController } from '@ionic/angular'
+import { LoadingController, NavController } from '@ionic/angular'
 import { WebviewPluginNative } from 'capacitor-s9-webview'
-import { HttpService } from 'src/app/services/http-service'
+import { HttpService } from 'src/app/services/http.service'
 import { Store } from 'src/app/store'
 
 @Component({
@@ -12,11 +12,11 @@ import { Store } from 'src/app/store'
 export class HomePage {
   torAddressInput = ''
   passwordInput = ''
+  error = ''
 
   constructor (
     private readonly navCtrl: NavController,
     private readonly loadingCtrl: LoadingController,
-    private readonly alertCtrl: AlertController,
     private readonly httpService: HttpService,
     private readonly store: Store,
     private readonly zone: NgZone,
@@ -30,6 +30,8 @@ export class HomePage {
   }
 
   async connect (): Promise<void> {
+    this.error = ''
+
     const loader = await this.loadingCtrl.create({
       message: 'Authenticating...',
       spinner: 'lines',
@@ -42,27 +44,22 @@ export class HomePage {
 
     try {
       // authenticate
-      // await this.httpService.torRequest({
-      //   method: 'POST',
-      //   url: `${this.torAddressInput}/authenticate`,
-      //   data: { password: this.passwordInput },
-      // })
+      await this.httpService.torRequest({
+        method: 'GET',
+        url: `${this.torAddressInput}/api`,
+        params: { type: 'login' },
+        headers: { Authorization: 'Basic ' + btoa(`me:${this.passwordInput}`) },
+      })
       // save creds
       await this.store.saveCreds(this.torAddressInput, this.passwordInput)
+      // nav
+      await this.navCtrl.navigateRoot(['/webview'])
     } catch (e) {
-      const alert = await this.alertCtrl.create({
-        header: 'Invalid Credentials',
-        message: 'Invalid Tor address or password',
-        buttons: ['OK'],
-        cssClass: 'alert-danger',
-      })
-      await alert.present()
+      this.error = 'Invalid Credentials'
       return
     } finally {
       await loader.dismiss()
     }
-
-    this.navCtrl.navigateRoot(['/webview'])
   }
 
   async clearCache (): Promise<void> {
@@ -72,7 +69,13 @@ export class HomePage {
       cssClass: 'loader',
     })
     await loader.present()
-    await new WebviewPluginNative().clearCache('*', '*')
-    await loader.dismiss()
+
+    try {
+      await new WebviewPluginNative().clearCache('*', '*')
+    } catch (e) {
+      this.error = 'Failed to clear cache'
+    } finally {
+      await loader.dismiss()
+    }
   }
 }

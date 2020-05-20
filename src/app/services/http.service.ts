@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { HttpPluginNativeImpl, HttpOptions } from 'capacitor-http'
-import { TorService } from './tor-service'
+import { TorService } from './tor.service'
 
 @Injectable({
   providedIn: 'root',
@@ -19,8 +19,9 @@ export class HttpService {
     options.url = `http://${options.url}`
 
     try {
-      console.log('** RES **', options)
+      console.log('** REQ **', options)
       const res = await HttpPluginNativeImpl.request(options)
+      console.log('** RES **', res)
       return res.data || { }
     } catch (e) {
       console.error(e)

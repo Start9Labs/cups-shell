@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { HttpService } from './http-service'
+import { HttpService } from './http.service'
 import { Store } from '../store'
 
 import { Plugins, PluginListenerHandle } from '@capacitor/core'

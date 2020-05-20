@@ -35,8 +35,12 @@ ion-alert {
   --backdrop-opacity: 0.75 !important;
 }
 
+ion-loading {
+  --backdrop-opacity: 0.75 !important;
+}
+
 .loader {
-  --spinner-color: var(--ion-color-warning) !important;
+  --spinner-color: var(--ion-color-tertiary) !important;
 }
 
 .center {
