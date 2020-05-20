@@ -47,7 +47,9 @@ export class HomePage {
       await this.httpService.torRequest({
         method: 'GET',
         url: `${this.torAddressInput}/api`,
-        params: { type: 'login' },
+        // @TODO switch to 'login' when available
+        // params: { type: 'login' },
+        params: { type: 'users' },
         headers: { Authorization: 'Basic ' + btoa(`me:${this.passwordInput}`) },
       })
       // save creds
