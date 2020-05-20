@@ -59,6 +59,8 @@ export class WebviewPage {
       },
       rpchandler: async (_host: string, method: string, data: any) => {
         switch (method) {
+          case '/parentReady':
+            return this.store.platformReady
           case '/close':
             this.destroyWebview()
           case '/getConfigValue':

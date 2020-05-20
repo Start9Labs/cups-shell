@@ -35,15 +35,17 @@ export class AppComponent {
     // navigate
     await this.navigate()
     // subscribe to app pause event
-    this.platform.pause.subscribe(() => {
-      this.stopServices()
+    this.platform.pause.subscribe(async () => {
+      this.store.platformReady = false
+      await this.stopServices()
     })
     // sunscribe to app resume event
-    this.platform.resume.subscribe(() => {
-      this.startServices()
+    this.platform.resume.subscribe(async () => {
+      await this.startServices()
+      this.store.platformReady = true
     })
     // dismiss splash screen
-    SplashScreen.hide()
+    await SplashScreen.hide()
   }
 
   private async startServices (): Promise<void> {

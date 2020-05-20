@@ -7,6 +7,7 @@ const { Storage } = Plugins
   providedIn: 'root',
 })
 export class Store {
+  platformReady = true
   torAddress: string
   password: string
 
