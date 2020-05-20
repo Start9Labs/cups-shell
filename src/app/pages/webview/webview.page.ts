@@ -84,7 +84,7 @@ export class WebviewPage {
   async destroyWebview (): Promise<void> {
     // this.backgroundService.removeListener()
     await this.store.removePassword()
-    this.webview.close()
+    await this.webview.close()
     this.webview = undefined
     this.zone.run(() => { this.navCtrl.navigateRoot(['/home']) })
   }

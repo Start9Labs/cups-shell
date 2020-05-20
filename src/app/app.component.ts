@@ -22,6 +22,8 @@ export class AppComponent {
     private readonly torService: TorService,
     private readonly store: Store,
   ) {
+    // set dark theme
+    document.body.classList.toggle('dark', true)
     this.initializeApp()
   }
 
