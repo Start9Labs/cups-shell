@@ -26,17 +26,10 @@
 @import "~@ionic/angular/css/flex-utils.css";
 
 .alert-danger {
-  .alert-message.sc-ion-alert-md {
+  color: var(--ion-color-danger) !important;
+  & ion-icon {
     color: var(--ion-color-danger) !important;
   }
-}
-
-ion-alert {
-  --backdrop-opacity: 0.75 !important;
-}
-
-ion-loading {
-  --backdrop-opacity: 0.75 !important;
 }
 
 .loader {
@@ -47,4 +40,16 @@ ion-loading {
   display: block;
   margin: auto;
   height: 100%;
+}
+
+ion-alert {
+  --backdrop-opacity: 0.75 !important;
+}
+
+ion-action-sheet {
+  --backdrop-opacity: 0.75 !important;
+}
+
+ion-loading {
+  --backdrop-opacity: 0.75 !important;
 }

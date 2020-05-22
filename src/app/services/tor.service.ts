@@ -133,11 +133,11 @@ export class TorService {
     })
     await loader.present()
 
-    setTimeout(() => { this.handleConnecting(25, loader) }, 1500)
-    setTimeout(() => { this.handleConnecting(40, loader) }, 2000)
-    setTimeout(() => { this.handleConnecting(60, loader) }, 3000)
-    setTimeout(() => { this.handleConnecting(90, loader) }, 3500)
-    setTimeout(() => { this.handleConnecting(100, loader)}, 4500)
+    setTimeout(() => { this.handleConnecting(25, loader) }, 500)
+    setTimeout(() => { this.handleConnecting(40, loader) }, 1000)
+    setTimeout(() => { this.handleConnecting(60, loader) }, 1500)
+    setTimeout(() => { this.handleConnecting(90, loader) }, 1800)
+    setTimeout(() => { this.handleConnecting(100, loader)}, 2500)
   }
 }
 

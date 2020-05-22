@@ -1,9 +1,9 @@
 <ion-header class="ion-no-border" mode="ios" translucent>
   <ion-toolbar>
-    <ion-title>Connect</ion-title>
+    <ion-title>Login</ion-title>
     <ion-buttons slot="end">
-      <ion-button color="danger" (click)="clearCache()">
-        Clear Cache
+      <ion-button (click)="presentAction()">
+        <ion-icon slot="icon-only" name="ellipsis-horizontal-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -15,10 +15,10 @@
     <ion-text class="ion-text-wrap" color="danger">{{ error }}</ion-text>
   </ion-item>
 
-  <form (submit)="connect()">
+  <form (submit)="login()">
     <ion-item>
       <ion-label position="floating">
-        <ion-text color="medium">Cups Tor Address</ion-text>
+        <ion-text color="medium">Tor Address</ion-text>
       </ion-label>
       <ion-input name="torAddressInput" [(ngModel)]="torAddressInput"></ion-input>
     </ion-item>
@@ -29,8 +29,27 @@
       <ion-input type="password" name="passwordInput" [(ngModel)]="passwordInput"></ion-input>
     </ion-item>
     <ion-button class="ion-margin-top" [disabled]="!torAddressInput || !passwordInput" type="submit" expand="block" fill="outline">
-      Connect
+      Login
     </ion-button>
   </form>
+
+  <ion-item-group>
+    <ion-item-divider></ion-item-divider>
+    <ion-item>
+      <ion-label class="ion-text-wrap">
+        <ion-text color="warning"><h2>Instructions</h2></ion-text>
+        <ion-text color="medium">
+          <br />
+          <p>
+            Cups is a private, self-hosted, Tor-based, instant messager for owners of the <a href="https://start9labs.com" target="_system"> Start9 Embassy</a>.
+          </p>
+          <br />
+          <p>
+            Using the <a [href]="platform.is('ios') ? 'itms-apps://apps.apple.com/app/start9-companion-app/id1496204174' : 'market://details?id=com.start9labs.start9companion'" target="_system">Embassy Companion App</a>, your Tor Address can be found in the Cups app page. Your password can be found in the Cups config menu.
+          </p>
+        </ion-text>
+      </ion-label>
+    </ion-item>
+  </ion-item-group>
 
 </ion-content>

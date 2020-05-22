@@ -1,5 +1,5 @@
 import { Component, NgZone } from '@angular/core'
-import { LoadingController, NavController } from '@ionic/angular'
+import { LoadingController, NavController, ActionSheetController, Platform } from '@ionic/angular'
 import { WebviewPluginNative } from 'capacitor-s9-webview'
 import { HttpService } from 'src/app/services/http.service'
 import { Store } from 'src/app/store'
@@ -15,8 +15,10 @@ export class HomePage {
   error = ''
 
   constructor (
+    public platform: Platform,
     private readonly navCtrl: NavController,
     private readonly loadingCtrl: LoadingController,
+    private readonly actionSheetCtrl: ActionSheetController,
     private readonly httpService: HttpService,
     private readonly store: Store,
     private readonly zone: NgZone,
@@ -29,7 +31,7 @@ export class HomePage {
     })
   }
 
-  async connect (): Promise<void> {
+  async login (): Promise<void> {
     this.error = ''
 
     const loader = await this.loadingCtrl.create({
@@ -64,7 +66,21 @@ export class HomePage {
     }
   }
 
-  async clearCache (): Promise<void> {
+  async presentAction (): Promise<void> {
+    const actionSheet = await this.actionSheetCtrl.create({
+      buttons: [{
+        text: 'Clear Cache',
+        icon: 'trash-outline',
+        cssClass: 'alert-danger',
+        handler: () => {
+          this.clearCache()
+        },
+      }],
+    })
+    await actionSheet.present()
+  }
+
+  private async clearCache (): Promise < void > {
     const loader = await this.loadingCtrl.create({
       message: 'Clearing Cache',
       spinner: 'lines',
