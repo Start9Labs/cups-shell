@@ -14,7 +14,6 @@ export class TorService {
   private readonly tor = new Tor()
   private readonly progress$ = new BehaviorSubject<number>(0)
   private readonly connection$ = new BehaviorSubject<TorConnection>(TorConnection.uninitialized)
-  private wasStopped = false
   networkSub: Subscription
   watchProgress (): Observable<number> { return this.progress$.asObservable() }
   watchConnection (): Observable<TorConnection> { return this.connection$.asObservable() }
@@ -47,18 +46,12 @@ export class TorService {
     })
     await loader.present()
 
-    let action: (opt?: { socksPort: number, initTimeout: number}) => Observable<number>
-    if (this.platform.is('ios') && this.wasStopped) {
-      action = this.tor.restart.bind(this.tor)
-    } else {
-      action = this.tor.start.bind(this.tor)
-    }
+    this.connection$.next(TorConnection.in_progress)
 
-    action({ socksPort: TorService.PORT, initTimeout: 40000 }).subscribe({
+    this.tor.start({ socksPort: TorService.PORT, initTimeout: 40000 }).subscribe({
       next: (progress: number) => this.handleConnecting(progress, loader),
       error: (err: string) => {
         this.connection$.next(TorConnection.disconnected)
-        loader.dismiss()
         throw new Error(`Error connecting to Tor: ${err}`)
       },
     })
@@ -71,7 +64,6 @@ export class TorService {
       console.log('stopping Tor')
       try {
         this.tor.stop()
-        this.wasStopped = true
         this.progress$.next(0)
         this.connection$.next(TorConnection.disconnected)
       } catch (e) {
