@@ -46,7 +46,7 @@ export class WebviewPage {
     this.createWebview()
   }
 
-  async createWebview (): Promise<void> {
+  private async createWebview (): Promise<void> {
     this.webview = new WebviewPluginNative()
 
     this.webview.open({
@@ -83,7 +83,7 @@ export class WebviewPage {
     })
   }
 
-  async destroyWebview (): Promise<void> {
+  private async destroyWebview (): Promise<void> {
     // this.backgroundService.removeListener()
     await this.store.removePassword()
     this.webview.close()
