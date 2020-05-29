@@ -1,23 +1,24 @@
 import { Injectable } from '@angular/core'
 
 import { Plugins } from '@capacitor/core'
-const { Storage } = Plugins
+const { SecureStoragePlugin: Storage } = Plugins
 
 @Injectable({
   providedIn: 'root',
 })
 export class Store {
   platformReady = true
-  torAddress: string
-  password: string
+  torAddress = ''
+  password = ''
 
   async init (): Promise<void> {
-    const [torRes, passRes] = await Promise.all([
-      Storage.get({ key: 'torAddress' }),
-      Storage.get({ key: 'password' }),
-    ])
-    this.torAddress = torRes.value || ''
-    this.password = passRes.value || ''
+    try {
+      this.torAddress = (await Storage.get({ key: 'torAddress' })).value
+    } catch (e) { }
+
+    try {
+      this.password = (await Storage.get({ key: 'password' })).value
+    } catch (e) { }
   }
 
   async saveCreds (torAddress: string, password: string): Promise<void> {

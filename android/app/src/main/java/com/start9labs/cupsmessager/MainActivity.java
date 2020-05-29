@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import tor.plugin.TorPlugin;
 import http.plugin.HttpPlugin;
 import start9.webview.plugin.WebviewPlugin;
+import com.whitestein.securestorage.SecureStoragePlugin;
 
 public class MainActivity extends BridgeActivity {
   @Override
@@ -23,6 +24,7 @@ public class MainActivity extends BridgeActivity {
       add(TorPlugin.class);
       add(HttpPlugin.class);
       add(WebviewPlugin.class);
+      add(SecureStoragePlugin.class);
     }});
   }
 }

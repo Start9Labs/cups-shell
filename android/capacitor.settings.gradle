@@ -8,5 +8,8 @@ project(':capacitor-http').projectDir = new File('../node_modules/capacitor-http
 include ':capacitor-s9-webview'
 project(':capacitor-s9-webview').projectDir = new File('../node_modules/capacitor-s9-webview/android')
 
+include ':capacitor-secure-storage-plugin'
+project(':capacitor-secure-storage-plugin').projectDir = new File('../node_modules/capacitor-secure-storage-plugin/android')
+
 include ':capacitor-tor'
 project(':capacitor-tor').projectDir = new File('../node_modules/capacitor-tor/android')

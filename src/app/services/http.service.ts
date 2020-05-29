@@ -16,23 +16,8 @@ export class HttpService {
       port: TorService.PORT,
       protocol: 'SOCKS',
     }
-    options.url = `http://${options.url}`
 
-    try {
-      console.log('** REQ **', options)
-      const res = await HttpPluginNativeImpl.request(options)
-      console.log('** RES **', res)
-      return res.data || { }
-    } catch (e) {
-      console.error(e)
-
-      let message: string
-      try {
-        message = JSON.parse(e.error).message
-      } catch (e) {
-        message = e.error
-      }
-      throw new Error(message || 'Unknown Error')
-    }
+    const res = await HttpPluginNativeImpl.request(options)
+    return res.data || { }
   }
 }

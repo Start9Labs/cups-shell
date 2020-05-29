@@ -49,6 +49,17 @@ export class WebviewPage {
   private async createWebview (): Promise<void> {
     this.webview = new WebviewPluginNative()
 
+    this.webview.onPageLoaded(() => {
+      this.zone.run(() => {
+        // we give it an extra half second to display the page
+        setTimeout(() => {
+          this.webviewLoading = false
+          // add background listener
+          // this.backgroundService.addListener()
+        }, 500)
+      })
+    })
+
     this.webview.open({
       url: `onion://${this.store.torAddress}`,
       element: this.webviewEl.nativeElement,
@@ -69,17 +80,6 @@ export class WebviewPage {
             throw new Error('unimplemented')
         }
       },
-    })
-
-    this.webview.onPageLoaded(() => {
-      this.zone.run(() => {
-        // we give it an extra half second to display the page
-        setTimeout(() => {
-          this.webviewLoading = false
-          // add background listener
-          // this.backgroundService.addListener()
-        }, 500)
-      })
     })
   }
 

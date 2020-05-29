@@ -44,14 +44,19 @@ export class HomePage {
     this.torAddressInput = this.torAddressInput.trim()
     this.passwordInput = this.passwordInput.trim()
 
+    if (this.torAddressInput.startsWith('http://')) {
+      this.torAddressInput = this.torAddressInput.substr(7)
+    }
+    if (this.torAddressInput.startsWith('https://')) {
+      this.torAddressInput = this.torAddressInput.substr(8)
+    }
+
     try {
       // authenticate
       await this.httpService.torRequest({
         method: 'GET',
-        url: `${this.torAddressInput}/api`,
-        // @TODO switch to 'login' when available
-        // params: { type: 'login' },
-        params: { type: 'users' },
+        url: `http://${this.torAddressInput}/api`,
+        params: { type: 'login' },
         headers: { Authorization: 'Basic ' + btoa(`me:${this.passwordInput}`) },
       })
       // save creds
@@ -59,7 +64,12 @@ export class HomePage {
       // nav
       await this.navCtrl.navigateRoot(['/webview'])
     } catch (e) {
-      this.error = 'Invalid Credentials'
+      console.error(e)
+      if (e.status === 401) {
+        this.error = 'Invalid password'
+      } else {
+        this.error = 'Server not found'
+      }
       return
     } finally {
       await loader.dismiss()
