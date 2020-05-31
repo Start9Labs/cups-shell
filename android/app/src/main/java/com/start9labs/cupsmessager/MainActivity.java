@@ -1,4 +1,4 @@
-package com.start9labs.cupsmessager;
+package com.start9labs.cups;
 
 import android.os.Bundle;
 

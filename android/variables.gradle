@@ -1,6 +1,6 @@
 ext {
-    applicationId = 'com.start9labs.cupsmessager'
-    minSdkVersion = 23
+    applicationId = 'com.start9labs.cups'
+    minSdkVersion = 27
     compileSdkVersion = 28
     targetSdkVersion = 28
     androidxAppCompatVersion = '1.1.0'

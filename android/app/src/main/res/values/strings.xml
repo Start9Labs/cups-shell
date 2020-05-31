@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Cups</string>
+    <string name="app_name">Cups Messenger</string>
     <string name="title_activity_main">Cups</string>
-    <string name="package_name">com.start9labs.cupsmessager</string>
-    <string name="custom_url_scheme">com.start9labs.cupsmessager</string>
+    <string name="package_name">com.start9labs.cups</string>
+    <string name="custom_url_scheme">com.start9labs.cups</string>
 </resources>
