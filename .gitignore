@@ -34,3 +34,5 @@ npm-debug.log*
 
 resources/android
 resources/ios
+
+*.keystore
