@@ -27,11 +27,6 @@ export class AppComponent {
     this.initializeApp()
   }
 
-  // ngOnInit () {
-  //   const preloadArea: HTMLElement = document.getElementById('preload')
-  //   preloadArea.appendChild(document.createElement('ion-action-sheet'))
-  // }
-
   private async initializeApp () {
     // init store
     await this.store.init()
