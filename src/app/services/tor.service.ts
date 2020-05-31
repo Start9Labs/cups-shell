@@ -4,7 +4,6 @@ import { Observable, BehaviorSubject, Subscription } from 'rxjs'
 import { NetworkMonitor } from './network.service'
 import { NetworkStatus } from '@capacitor/core'
 import { Platform, LoadingController } from '@ionic/angular'
-import { Store } from '../store'
 
 @Injectable({
   providedIn: 'root',
