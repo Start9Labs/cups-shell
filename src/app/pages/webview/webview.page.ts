@@ -56,7 +56,7 @@ export class WebviewPage {
           this.webviewLoading = false
           // add background listener
           // this.backgroundService.addListener()
-        }, 500)
+        }, 5000)
       })
     })
 
@@ -72,10 +72,12 @@ export class WebviewPage {
         switch (method) {
           case '/parentReady':
             return this.store.platformReady
-          case '/close':
-            this.destroyWebview()
           case '/getConfigValue':
-            if (data[0] === 'password') { return this.store.password }
+            this.getConfigValue(data[0])
+          case '/close':
+            this.close()
+          case '/updateCache':
+            this.updateCache()
           default:
             throw new Error('unimplemented')
         }
@@ -83,11 +85,28 @@ export class WebviewPage {
     })
   }
 
-  private async destroyWebview (): Promise<void> {
+  private async getConfigValue (key: string): Promise<any> {
+    if (key === 'password') {
+      return this.store.password
+    }
+  }
+
+  private async close (): Promise<void> {
     // this.backgroundService.removeListener()
     await this.store.removePassword()
     this.webview.close()
     this.webview = undefined
     this.zone.run(() => { this.navCtrl.navigateRoot(['/home']) })
+  }
+
+  private async updateCache (): Promise<void> {
+    this.webviewLoading = true
+
+    this.webview.close()
+    this.webview = undefined
+
+    await new WebviewPluginNative().clearCache('*', '*')
+
+    await this.createWebview()
   }
 }
