@@ -11,7 +11,7 @@ export class Store {
   torAddress = ''
   password = ''
 
-  async init (): Promise<void> {
+  async init(): Promise<void> {
     /**
      * Detect if this is the first launch of the app.
      * If so, delete data from the secure element.
@@ -20,7 +20,7 @@ export class Store {
     const initializedKey = 'initialized'
     const initialized = (await Storage.get({ key: initializedKey })).value
     if (!initialized) {
-      await SecureStorage.clear().catch({ })
+      await SecureStorage.clear().catch(e => { })
       await Storage.set({ key: initializedKey, value: String(true) })
     } else {
       try {
@@ -33,7 +33,7 @@ export class Store {
     }
   }
 
-  async saveCreds (torAddress: string, password: string): Promise<void> {
+  async saveCreds(torAddress: string, password: string): Promise<void> {
     await Promise.all([
       SecureStorage.set({ key: 'torAddress', value: torAddress }),
       SecureStorage.set({ key: 'password', value: password }),
@@ -42,7 +42,7 @@ export class Store {
     this.password = password
   }
 
-  async removePassword (): Promise<void> {
+  async removePassword(): Promise<void> {
     await SecureStorage.remove({ key: 'password' })
     this.password = ''
   }
