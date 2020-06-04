@@ -1,12 +1,11 @@
 import { Component } from '@angular/core'
 import { Router } from '@angular/router'
-import { Platform } from '@ionic/angular'
 import { NetworkMonitor } from './services/network.service'
 import { TorService } from './services/tor.service'
 import { Store } from './store'
 
-import { AppState, Plugins } from '@capacitor/core'
-const { App, SplashScreen } = Plugins
+import { AppState, Plugins, StatusBarStyle } from '@capacitor/core'
+const { App, SplashScreen, StatusBar } = Plugins
 
 @Component({
   selector: 'app-root',
@@ -15,9 +14,8 @@ const { App, SplashScreen } = Plugins
 })
 export class AppComponent {
 
-  constructor(
+  constructor (
     private readonly router: Router,
-    private readonly platform: Platform,
     private readonly networkMonitor: NetworkMonitor,
     private readonly torService: TorService,
     private readonly store: Store,
@@ -27,7 +25,7 @@ export class AppComponent {
     this.initializeApp()
   }
 
-  private async initializeApp() {
+  private async initializeApp () {
     // init store
     await this.store.init()
     // start services
@@ -45,24 +43,27 @@ export class AppComponent {
         await this.stopServices()
       }
     })
-
+    // set StatusBar style
+    StatusBar.setStyle({
+      style: StatusBarStyle.Dark,
+    })
     // dismiss splash screen
-    await SplashScreen.hide()
+    SplashScreen.hide()
   }
 
-  private async startServices(): Promise<void> {
+  private async startServices (): Promise<void> {
     // init network monitor
     await this.networkMonitor.init()
     // init Tor
     this.torService.init()
   }
 
-  private async stopServices(): Promise<void> {
+  private async stopServices (): Promise<void> {
     await this.torService.stop()
     this.networkMonitor.unint()
   }
 
-  private async navigate() {
+  private async navigate () {
     let route: string
     if (this.store.torAddress && this.store.password) {
       route = '/webview'
