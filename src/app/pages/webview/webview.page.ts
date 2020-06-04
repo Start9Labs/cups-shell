@@ -73,11 +73,11 @@ export class WebviewPage {
           case '/parentReady':
             return this.store.platformReady
           case '/getConfigValue':
-            this.getConfigValue(data[0])
+            return this.getConfigValue(data[0])
           case '/close':
-            this.close()
+            return this.close()
           case '/updateCache':
-            this.updateCache()
+            return this.updateCache()
           default:
             throw new Error('unimplemented')
         }
