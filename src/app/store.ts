@@ -20,7 +20,7 @@ export class Store {
     const initializedKey = 'initialized'
     const initialized = (await Storage.get({ key: initializedKey })).value
     if (!initialized) {
-      await SecureStorage.clear()
+      await SecureStorage.clear().catch({ })
       await Storage.set({ key: initializedKey, value: String(true) })
     } else {
       try {
