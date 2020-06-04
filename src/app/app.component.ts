@@ -5,8 +5,8 @@ import { NetworkMonitor } from './services/network.service'
 import { TorService } from './services/tor.service'
 import { Store } from './store'
 
-import { Plugins } from '@capacitor/core'
-const { SplashScreen } = Plugins
+import { AppState, Plugins } from '@capacitor/core'
+const { App, SplashScreen } = Plugins
 
 @Component({
   selector: 'app-root',
@@ -15,7 +15,7 @@ const { SplashScreen } = Plugins
 })
 export class AppComponent {
 
-  constructor (
+  constructor(
     private readonly router: Router,
     private readonly platform: Platform,
     private readonly networkMonitor: NetworkMonitor,
@@ -27,40 +27,42 @@ export class AppComponent {
     this.initializeApp()
   }
 
-  private async initializeApp () {
+  private async initializeApp() {
     // init store
     await this.store.init()
     // start services
     await this.startServices()
     // navigate
     await this.navigate()
-    // subscribe to app pause event
-    this.platform.pause.subscribe(async () => {
-      this.store.platformReady = false
-      await this.stopServices()
+
+    // subscribe to pause/resume events
+    App.addListener('appStateChange', async (state: AppState) => {
+      if (state.isActive) {
+        await this.startServices()
+        this.store.platformReady = true
+      } else {
+        this.store.platformReady = false
+        await this.stopServices()
+      }
     })
-    // sunscribe to app resume event
-    this.platform.resume.subscribe(async () => {
-      await this.startServices()
-      this.store.platformReady = true
-    })
+
     // dismiss splash screen
     await SplashScreen.hide()
   }
 
-  private async startServices (): Promise<void> {
+  private async startServices(): Promise<void> {
     // init network monitor
     await this.networkMonitor.init()
     // init Tor
     this.torService.init()
   }
 
-  private async stopServices (): Promise<void> {
+  private async stopServices(): Promise<void> {
     await this.torService.stop()
     this.networkMonitor.unint()
   }
 
-  private async navigate () {
+  private async navigate() {
     let route: string
     if (this.store.torAddress && this.store.password) {
       route = '/webview'
