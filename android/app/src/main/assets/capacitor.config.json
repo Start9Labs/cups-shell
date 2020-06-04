@@ -3,5 +3,11 @@
   "appName": "Cups Messenger",
   "bundledWebRuntime": false,
   "npmClient": "npm",
-  "webDir": "www"
+  "webDir": "www",
+  "plugins": {
+    "Keyboard": {
+      "resize": "none",
+      "style": "dark"
+    }
+  }
 }
