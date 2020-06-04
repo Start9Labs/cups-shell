@@ -45,7 +45,7 @@ export class AppComponent {
     })
     // set StatusBar overlays webview
     StatusBar.setOverlaysWebView({
-      overlay: true,
+      overlay: false,
     })
     // set StatusBar style
     StatusBar.setStyle({
