@@ -43,6 +43,10 @@ export class AppComponent {
         await this.stopServices()
       }
     })
+    // set StatusBar overlays webview
+    StatusBar.setOverlaysWebView({
+      overlay: true,
+    })
     // set StatusBar style
     StatusBar.setStyle({
       style: StatusBarStyle.Dark,
