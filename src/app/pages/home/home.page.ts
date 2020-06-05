@@ -53,7 +53,7 @@ export class HomePage {
 
     try {
       // authenticate
-      await this.httpService.torRequest({
+      await this.httpService.torRequest<void>({
         method: 'GET',
         url: `http://${this.torAddressInput}/api`,
         params: { type: 'login' },

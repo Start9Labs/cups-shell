@@ -14,20 +14,20 @@ export class TorService {
   private readonly progress$ = new BehaviorSubject<number>(0)
   private readonly connection$ = new BehaviorSubject<TorConnection>(TorConnection.uninitialized)
   networkSub: Subscription
-  watchProgress(): Observable<number> { return this.progress$.asObservable() }
-  watchConnection(): Observable<TorConnection> { return this.connection$.asObservable() }
+  watchProgress (): Observable<number> { return this.progress$.asObservable() }
+  watchConnection (): Observable<TorConnection> { return this.connection$.asObservable() }
 
-  constructor(
+  constructor (
     private readonly platform: Platform,
     private readonly loadingCtrl: LoadingController,
     private readonly networkMonitor: NetworkMonitor,
   ) { }
 
-  init(): void {
+  init (): void {
     this.networkSub = this.networkSub || this.networkMonitor.watch().subscribe(n => this.handleNetworkChange(n))
   }
 
-  async start(): Promise<void> {
+  async start (): Promise<void> {
     // ** MOCKS **
     // return this.mock()
 
@@ -56,7 +56,7 @@ export class TorService {
     })
   }
 
-  async stop(): Promise<void> {
+  async stop (): Promise<void> {
     console.log('TOR STOP?')
     if (!this.platform.is('ios') && !this.platform.is('android')) { return }
 
@@ -72,13 +72,13 @@ export class TorService {
     }
   }
 
-  private async restart(): Promise<void> {
+  private async restart (): Promise<void> {
     console.log('restarting Tor')
     await this.stop()
     this.start()
   }
 
-  private async reconnect(): Promise<void> {
+  private async reconnect (): Promise<void> {
     if (!this.platform.is('ios') && !this.platform.is('android')) { return }
 
     console.log('reconnecting Tor')
@@ -91,7 +91,7 @@ export class TorService {
     }
   }
 
-  private async handleNetworkChange(network: NetworkStatus): Promise<void> {
+  private async handleNetworkChange (network: NetworkStatus): Promise<void> {
     // if connected to Internet, connect or reconnect to Tor
     if (network.connected) {
       if (this.platform.is('desktop')) { this.start(); return }
@@ -104,7 +104,7 @@ export class TorService {
     }
   }
 
-  private async handleConnecting(progress: number, loader: HTMLIonLoadingElement) {
+  private async handleConnecting (progress: number, loader: HTMLIonLoadingElement) {
     this.progress$.next(progress)
     loader.message = `Tor connecting: ${progress}%`
 
@@ -114,7 +114,7 @@ export class TorService {
     }
   }
 
-  private async  mock(): Promise<void> {
+  private async  mock (): Promise<void> {
     console.log('starting Tor')
     this.connection$.next(TorConnection.in_progress)
 

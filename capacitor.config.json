@@ -8,6 +8,9 @@
     "Keyboard": {
       "resize": "none",
       "style": "dark"
+    },
+    "SplashScreen": {
+      "launchAutoHide": false
     }
   }
 }

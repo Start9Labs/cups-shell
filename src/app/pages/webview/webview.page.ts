@@ -6,6 +6,9 @@ import { TorService, TorConnection } from 'src/app/services/tor.service'
 import { Store } from 'src/app/store'
 import { Subscription } from 'rxjs'
 
+import { Plugins } from '@capacitor/core'
+const { App } = Plugins
+
 @Component({
   selector: 'app-webview',
   templateUrl: 'webview.page.html',
@@ -13,7 +16,7 @@ import { Subscription } from 'rxjs'
 })
 export class WebviewPage {
   @ViewChild('webviewEl') webviewEl: ElementRef
-  webview: WebviewPluginNative
+  webview: WebviewPluginNative = new WebviewPluginNative()
   torSub: Subscription
   webviewLoading = true
   torLoading = false
@@ -27,6 +30,26 @@ export class WebviewPage {
   ) { }
 
   ngOnInit () {
+    // listen for webview update event
+    this.webview.onUpdate(async (body: { appId: string, oldVersion: string, newVersion: string }) => {
+      console.log('WEBVIEW UPDATE DETECTED')
+      this.webviewLoading = true
+      await this.webview.clearCache(body.appId, '*')
+      console.log('CALLING WEBVIEW RELOAD')
+      this.webview.reload()
+    })
+    // listen for webview loaded event
+    this.webview.onPageLoaded(() => {
+      this.zone.run(() => {
+        // we give it an extra half second to display the page
+        setTimeout(() => {
+          this.webviewLoading = false
+          // add background listener
+          // this.backgroundService.addListener()
+        }, 5000)
+      })
+    })
+    // watch Tor connection
     this.torSub = this.torService.watchConnection().subscribe(c => {
       this.zone.run(() => {
         if (c === TorConnection.in_progress) {
@@ -35,6 +58,27 @@ export class WebviewPage {
           this.torLoading = false
         }
       })
+    })
+    // listen for app resume
+    App.addListener('appStateChange', async state => {
+      console.log('STATE CHANGE', state)
+      if (state.isActive) {
+        console.log('ITS ACTIVE')
+        const tempSub = this.torService.watchConnection().subscribe(async c => {
+          console.log('TOR CONNECION', c)
+          if (c === TorConnection.connected) {
+            try {
+              console.log('CHECKING FOR UPDATES')
+              await this.webview.checkForUpdates()
+              console.log('CHECK COMPLETE')
+            } catch (e) {
+              console.error(e)
+            } finally {
+              tempSub.unsubscribe()
+            }
+          }
+        })
+      }
     })
   }
 
@@ -47,19 +91,6 @@ export class WebviewPage {
   }
 
   private async createWebview (): Promise<void> {
-    this.webview = new WebviewPluginNative()
-
-    this.webview.onPageLoaded(() => {
-      this.zone.run(() => {
-        // we give it an extra half second to display the page
-        setTimeout(() => {
-          this.webviewLoading = false
-          // add background listener
-          // this.backgroundService.addListener()
-        }, 5000)
-      })
-    })
-
     this.webview.open({
       url: `onion://${this.store.torAddress}`,
       element: this.webviewEl.nativeElement,
@@ -76,8 +107,6 @@ export class WebviewPage {
             return this.getConfigValue(data[0])
           case '/close':
             return this.close()
-          case '/updateCache':
-            return this.updateCache()
           default:
             throw new Error('unimplemented')
         }
@@ -95,18 +124,6 @@ export class WebviewPage {
     // this.backgroundService.removeListener()
     await this.store.removePassword()
     this.webview.close()
-    this.webview = undefined
     this.zone.run(() => { this.navCtrl.navigateRoot(['/home']) })
-  }
-
-  private async updateCache (): Promise<void> {
-    this.webviewLoading = true
-
-    this.webview.close()
-    this.webview = undefined
-
-    await new WebviewPluginNative().clearCache('*', '*')
-
-    await this.createWebview()
   }
 }

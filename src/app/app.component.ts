@@ -4,7 +4,7 @@ import { NetworkMonitor } from './services/network.service'
 import { TorService } from './services/tor.service'
 import { Store } from './store'
 
-import { AppState, Plugins, StatusBarStyle } from '@capacitor/core'
+import { Plugins, StatusBarStyle } from '@capacitor/core'
 const { App, SplashScreen, StatusBar } = Plugins
 
 @Component({
@@ -32,9 +32,8 @@ export class AppComponent {
     await this.startServices()
     // navigate
     await this.navigate()
-
     // subscribe to pause/resume events
-    App.addListener('appStateChange', async (state: AppState) => {
+    App.addListener('appStateChange', async state => {
       if (state.isActive) {
         await this.startServices()
         this.store.platformReady = true
@@ -44,21 +43,15 @@ export class AppComponent {
       }
     })
     // set StatusBar overlays webview
-    StatusBar.setOverlaysWebView({
-      overlay: false,
-    })
+    StatusBar.setOverlaysWebView({ overlay: false })
     // set StatusBar style
-    StatusBar.setStyle({
-      style: StatusBarStyle.Dark,
-    })
+    StatusBar.setStyle({ style: StatusBarStyle.Dark })
     // dismiss splash screen
     SplashScreen.hide()
   }
 
   private async startServices (): Promise<void> {
-    // init network monitor
     await this.networkMonitor.init()
-    // init Tor
     this.torService.init()
   }
 
@@ -74,6 +67,6 @@ export class AppComponent {
     } else {
       route = '/home'
     }
-    await this.router.navigate([route])
+    this.router.navigate([route])
   }
 }
