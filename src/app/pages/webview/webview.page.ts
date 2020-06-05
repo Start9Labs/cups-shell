@@ -20,6 +20,7 @@ export class WebviewPage {
   torSub: Subscription
   webviewLoading = true
   torLoading = false
+  cancelable = null
 
   constructor (
     private readonly navCtrl: NavController,
@@ -30,10 +31,11 @@ export class WebviewPage {
   ) { }
 
   ngOnInit () {
+    this.setLoading()
     // listen for webview update event
     this.webview.onUpdate(async (body: { appId: string, oldVersion: string, newVersion: string }) => {
       this.zone.run(() => {
-        this.webviewLoading = true
+        this.setLoading()
       })
       await this.webview.clearCache(body.appId, '*')
       this.webview.reload()
@@ -72,6 +74,23 @@ export class WebviewPage {
 
   ngAfterViewInit () {
     this.createWebview()
+  }
+
+  private setLoading (): void {
+    this.webviewLoading = true
+    if (this.cancelable) {
+      this.cancelable.reject()
+      this.cancelable = null
+    }
+    new Promise((res, rej) => {
+      this.cancelable = { reject: rej }
+      setTimeout(() => {
+        res()
+      }, 60000)
+    }).then(() => {
+      this.webviewLoading = false
+      this.cancelable = null
+    }).catch(() => { })
   }
 
   private async createWebview (): Promise<void> {
