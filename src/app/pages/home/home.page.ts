@@ -25,9 +25,8 @@ export class HomePage {
   ) { }
 
   ngOnInit () {
-    this.zone.run(() => {
-      this.torAddressInput = this.store.torAddress
-      this.passwordInput = this.store.password
+    this.store.watchTorAddress().subscribe(torAddress => {
+      this.zone.run(() => { this.torAddressInput = torAddress })
     })
   }
 

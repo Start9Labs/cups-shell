@@ -3,16 +3,13 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router'
 
 const routes: Routes = [
   {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full',
-  },
-  {
     path: 'home',
+    pathMatch: 'full',
     loadChildren: () => import('./pages/home/home.module').then( m => m.HomePageModule),
   },
   {
     path: 'webview',
+    pathMatch: 'full',
     loadChildren: () => import('./pages/webview/webview.module').then( m => m.WebviewPageModule),
   },
 ]

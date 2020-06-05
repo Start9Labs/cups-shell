@@ -62,7 +62,7 @@ export class AppComponent {
 
   private async navigate () {
     let route: string
-    if (this.store.torAddress && this.store.password) {
+    if (this.store.peekTorAddress() && this.store.peekPassword()) {
       route = '/webview'
     } else {
       route = '/home'

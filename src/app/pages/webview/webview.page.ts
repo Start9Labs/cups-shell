@@ -100,7 +100,7 @@ export class WebviewPage {
     })
 
     this.webview.open({
-      url: `onion://${this.store.torAddress}`,
+      url: `onion://${this.store.peekTorAddress()}`,
       element: this.webviewEl.nativeElement,
       torproxy: {
         protocol: 'SOCKS',
@@ -127,7 +127,7 @@ export class WebviewPage {
 
   private async getConfigValue (key: string): Promise<any> {
     if (key === 'password') {
-      return this.store.password
+      return this.store.peekPassword()
     }
   }
 
