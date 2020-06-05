@@ -32,10 +32,10 @@ export class WebviewPage {
   ngOnInit () {
     // listen for webview update event
     this.webview.onUpdate(async (body: { appId: string, oldVersion: string, newVersion: string }) => {
-      console.log('WEBVIEW UPDATE DETECTED')
-      this.webviewLoading = true
+      this.zone.run(() => {
+        this.webviewLoading = true
+      })
       await this.webview.clearCache(body.appId, '*')
-      console.log('CALLING WEBVIEW RELOAD')
       this.webview.reload()
     })
     // watch Tor connection
@@ -50,16 +50,11 @@ export class WebviewPage {
     })
     // listen for app resume
     App.addListener('appStateChange', async state => {
-      console.log('STATE CHANGE', state)
       if (state.isActive) {
-        console.log('ITS ACTIVE')
         const tempSub = this.torService.watchConnection().subscribe(async c => {
-          console.log('TOR CONNECION', c)
           if (c === TorConnection.connected) {
             try {
-              console.log('CHECKING FOR UPDATES')
               await this.webview.checkForUpdates()
-              console.log('CHECK COMPLETE')
             } catch (e) {
               console.error(e)
             } finally {
