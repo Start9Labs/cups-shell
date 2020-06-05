@@ -38,17 +38,6 @@ export class WebviewPage {
       console.log('CALLING WEBVIEW RELOAD')
       this.webview.reload()
     })
-    // listen for webview loaded event
-    this.webview.onPageLoaded(() => {
-      this.zone.run(() => {
-        // we give it an extra half second to display the page
-        setTimeout(() => {
-          this.webviewLoading = false
-          // add background listener
-          // this.backgroundService.addListener()
-        }, 5000)
-      })
-    })
     // watch Tor connection
     this.torSub = this.torService.watchConnection().subscribe(c => {
       this.zone.run(() => {
@@ -103,6 +92,11 @@ export class WebviewPage {
         switch (method) {
           case '/parentReady':
             return this.store.platformReady
+          case '/childReady':
+            this.zone.run(() => {
+              this.webviewLoading = false
+            })
+            break
           case '/getConfigValue':
             return this.getConfigValue(data[0])
           case '/close':
