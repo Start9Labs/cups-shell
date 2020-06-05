@@ -51,6 +51,7 @@ export class TorService {
       next: (progress: number) => this.handleConnecting(progress, loader),
       error: (err: string) => {
         this.connection$.next(TorConnection.disconnected)
+        loader.dismiss()
         throw new Error(`Error connecting to Tor: ${err}`)
       },
     })
