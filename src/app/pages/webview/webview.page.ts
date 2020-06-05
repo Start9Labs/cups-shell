@@ -16,7 +16,7 @@ const { App } = Plugins
 })
 export class WebviewPage {
   @ViewChild('webviewEl') webviewEl: ElementRef
-  webview: WebviewPluginNative = new WebviewPluginNative()
+  webview: WebviewPluginNative
   torSub: Subscription
   webviewLoading = true
   torLoading = false
@@ -32,14 +32,9 @@ export class WebviewPage {
 
   ngOnInit () {
     this.setLoading()
-    // listen for webview update event
-    this.webview.onUpdate(async (body: { appId: string, oldVersion: string, newVersion: string }) => {
-      this.zone.run(() => {
-        this.setLoading()
-      })
-      await this.webview.clearCache(body.appId, '*')
-      this.webview.reload()
-    })
+  }
+
+  ngAfterViewInit () {
     // watch Tor connection
     this.torSub = this.torService.watchConnection().subscribe(c => {
       this.zone.run(() => {
@@ -47,6 +42,9 @@ export class WebviewPage {
           this.torLoading = true
         } else if (c === TorConnection.connected) {
           this.torLoading = false
+          if (!this.webview) {
+            this.createWebview()
+          }
         }
       })
     })
@@ -56,7 +54,7 @@ export class WebviewPage {
         const tempSub = this.torService.watchConnection().subscribe(async c => {
           if (c === TorConnection.connected) {
             try {
-              await this.webview.checkForUpdates()
+              if (this.webview) { await this.webview.checkForUpdates() }
             } catch (e) {
               console.error(e)
             } finally {
@@ -72,10 +70,6 @@ export class WebviewPage {
     this.torSub.unsubscribe()
   }
 
-  ngAfterViewInit () {
-    this.createWebview()
-  }
-
   private setLoading (): void {
     this.webviewLoading = true
     if (this.cancelable) {
@@ -88,12 +82,23 @@ export class WebviewPage {
         res()
       }, 60000)
     }).then(() => {
-      this.webviewLoading = false
+      this.zone.run(() => { this.webviewLoading = false })
       this.cancelable = null
     }).catch(() => { })
   }
 
   private async createWebview (): Promise<void> {
+    this.webview = new WebviewPluginNative()
+
+    // listen for webview update event
+    this.webview.onUpdate(async (body: { appId: string, oldVersion: string, newVersion: string }) => {
+      this.zone.run(() => {
+        this.setLoading()
+      })
+      await this.webview.clearCache(body.appId, '*')
+      this.webview.reload()
+    })
+
     this.webview.open({
       url: `onion://${this.store.torAddress}`,
       element: this.webviewEl.nativeElement,
@@ -107,9 +112,7 @@ export class WebviewPage {
           case '/parentReady':
             return this.store.platformReady
           case '/childReady':
-            this.zone.run(() => {
-              this.webviewLoading = false
-            })
+            this.zone.run(() => { this.webviewLoading = false })
             break
           case '/getConfigValue':
             return this.getConfigValue(data[0])
@@ -132,6 +135,7 @@ export class WebviewPage {
     // this.backgroundService.removeListener()
     await this.store.removePassword()
     this.webview.close()
+    this.webview = undefined
     this.zone.run(() => { this.navCtrl.navigateRoot(['/home']) })
   }
 }
