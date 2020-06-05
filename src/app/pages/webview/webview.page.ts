@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild, NgZone } from '@angular/core'
-import { NavController } from '@ionic/angular'
+import { NavController, LoadingController } from '@ionic/angular'
 // import { BackgroundService } from 'src/app/services/background-service'
 import { WebviewPluginNative } from 'capacitor-s9-webview'
 import { TorService, TorConnection } from 'src/app/services/tor.service'
@@ -21,18 +21,16 @@ export class WebviewPage {
   webviewLoading = true
   torLoading = false
   cancelable = null
+  loader: HTMLIonLoadingElement
 
   constructor (
     private readonly navCtrl: NavController,
+    private readonly loadingCtrl: LoadingController,
     private readonly torService: TorService,
     // private readonly backgroundService: BackgroundService,
     private readonly store: Store,
     private readonly zone: NgZone,
   ) { }
-
-  ngOnInit () {
-    this.setLoading()
-  }
 
   ngAfterViewInit () {
     // watch Tor connection
@@ -44,6 +42,7 @@ export class WebviewPage {
           this.torLoading = false
           if (!this.webview) {
             this.createWebview()
+            this.setLoading()
           }
         }
       })
@@ -70,8 +69,18 @@ export class WebviewPage {
     this.torSub.unsubscribe()
   }
 
-  private setLoading (): void {
+  private async setLoading (): Promise<void> {
+    if (!this.loader) {
+      this.loader = await this.loadingCtrl.create({
+        message: 'Loading Cups...',
+        spinner: 'lines',
+        cssClass: 'loader',
+      })
+    }
+    await this.loader.present()
+
     this.webviewLoading = true
+
     if (this.cancelable) {
       this.cancelable.reject()
       this.cancelable = null
@@ -82,9 +91,13 @@ export class WebviewPage {
         res()
       }, 60000)
     }).then(() => {
-      this.zone.run(() => { this.webviewLoading = false })
       this.cancelable = null
-    }).catch(() => { })
+    }).catch((e) => {
+      console.error(e)
+    }).finally(() => {
+      this.zone.run(() => { this.webviewLoading = false })
+      this.loader.dismiss()
+    })
   }
 
   private async createWebview (): Promise<void> {
@@ -112,17 +125,23 @@ export class WebviewPage {
           case '/parentReady':
             return this.store.platformReady
           case '/childReady':
-            this.zone.run(() => { this.webviewLoading = false })
+            this.handleChildReady()
             break
           case '/getConfigValue':
             return this.getConfigValue(data[0])
           case '/close':
-            return this.close()
+            this.close()
+            break
           default:
             throw new Error('unimplemented')
         }
       },
     })
+  }
+
+  private async handleChildReady (): Promise<void> {
+    this.zone.run(() => { this.webviewLoading = false })
+    if (this.loader) { this.loader.dismiss() }
   }
 
   private async getConfigValue (key: string): Promise<any> {
@@ -134,8 +153,8 @@ export class WebviewPage {
   private async close (): Promise<void> {
     // this.backgroundService.removeListener()
     await this.store.removePassword()
+    this.zone.run(() => { this.navCtrl.navigateRoot(['/home']) })
     this.webview.close()
     this.webview = undefined
-    this.zone.run(() => { this.navCtrl.navigateRoot(['/home']) })
   }
 }

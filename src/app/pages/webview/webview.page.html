@@ -1,7 +1,2 @@
-<ion-content>
+<div [hidden]="webviewLoading || torLoading" class="entire-screen" #webviewEl></div>
 
-  <ion-spinner *ngIf="webviewLoading" class="center" name="lines" color="warning"></ion-spinner>
-
-  <div [hidden]="webviewLoading || torLoading" class="entire-screen" #webviewEl></div>
-
-</ion-content>
