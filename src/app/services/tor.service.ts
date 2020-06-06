@@ -3,7 +3,7 @@ import { Tor } from 'capacitor-tor'
 import { Observable, BehaviorSubject, Subscription } from 'rxjs'
 import { NetworkMonitor } from './network.service'
 import { NetworkStatus } from '@capacitor/core'
-import { Platform, LoadingController } from '@ionic/angular'
+import { Platform, LoadingController, AlertController } from '@ionic/angular'
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +20,7 @@ export class TorService {
   constructor (
     private readonly platform: Platform,
     private readonly loadingCtrl: LoadingController,
+    private readonly alertCtrl: AlertController,
     private readonly networkMonitor: NetworkMonitor,
   ) { }
 
@@ -47,18 +48,13 @@ export class TorService {
 
     this.connection$.next(TorConnection.in_progress)
 
-    this.tor.start({ socksPort: TorService.PORT, initTimeout: 40000 }).subscribe({
+    this.tor.start({ socksPort: TorService.PORT, initTimeout: 60000 }).subscribe({
       next: (progress: number) => this.handleConnecting(progress, loader),
-      error: (err: string) => {
-        this.connection$.next(TorConnection.disconnected)
-        loader.dismiss()
-        throw new Error(`Error connecting to Tor: ${err}`)
-      },
+      error: async (err: string) => this.handleError(loader),
     })
   }
 
   async stop (): Promise<void> {
-    console.log('TOR STOP?')
     if (!this.platform.is('ios') && !this.platform.is('android')) { return }
 
     if (await this.tor.isRunning()) {
@@ -132,6 +128,26 @@ export class TorService {
     setTimeout(() => { this.handleConnecting(90, loader) }, 1800)
     setTimeout(() => { this.handleConnecting(100, loader) }, 2500)
   }
+
+  private async handleError (loader: HTMLIonLoadingElement): Promise<void> {
+    await loader.dismiss()
+    await this.presentAlertFailed()
+  }
+
+  private async presentAlertFailed (): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Connection Failed',
+      message: 'Tor failed to connect. Please restart Cups to try again.',
+      buttons: [{
+        text: 'OK',
+        role: 'cancel',
+        handler: () => {
+          this.connection$.next(TorConnection.disconnected)
+        },
+      }],
+    })
+    await alert.present()
+  }
 }
 
 export enum TorConnection {
@@ -139,5 +155,4 @@ export enum TorConnection {
   in_progress = 'in_progress',
   connected = 'connected',
   disconnected = 'disconnected',
-  reconnecting = 'reconnecting',
 }

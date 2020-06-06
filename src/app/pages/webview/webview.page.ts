@@ -38,7 +38,7 @@ export class WebviewPage {
       this.zone.run(() => {
         if (c === TorConnection.in_progress) {
           this.torLoading = true
-        } else if (c === TorConnection.connected) {
+        } else {
           this.torLoading = false
           if (!this.webview) {
             this.createWebview()
