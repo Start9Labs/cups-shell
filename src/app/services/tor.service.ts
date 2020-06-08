@@ -10,7 +10,8 @@ import { WebviewPluginNative } from 'capacitor-s9-webview'
   providedIn: 'root',
 })
 export class TorService {
-  static readonly PORT = 59591
+  static readonly PORT = 59592
+  static readonly CONTROL_PORT = 59593
   private readonly tor = new Tor()
   private readonly progress$ = new BehaviorSubject<number>(0)
   private readonly connection$ = new BehaviorSubject<TorConnection>(TorConnection.uninitialized)
@@ -42,7 +43,7 @@ export class TorService {
 
     this.connection$.next(TorConnection.in_progress)
 
-    this.tor.start({ socksPort: TorService.PORT, initTimeout: 60000 }).subscribe({
+    this.tor.start({ socksPort: TorService.PORT, controlPort: TorService.CONTROL_PORT, initTimeout: 60000 }).subscribe({
       next: (progress: number) => this.handleConnecting(progress),
       error: (e) => {
         console.error(e)
