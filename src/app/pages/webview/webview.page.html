@@ -1,2 +1,14 @@
-<div [hidden]="webviewLoading || torLoading" class="entire-screen" #webviewEl></div>
+<ion-header *ngIf="displayBadConnection">
+  <ion-item>
+    <ion-icon slot="start" name="cellular-outline"></ion-icon>
+    <ion-label><ion-text color="warning">Poor Connection</ion-text></ion-label>
+    <ion-button slot="end" fill="clear" (click)="dismissBadConnection()">
+      <ion-icon slot="icon-only" name="close-circle-outline" color="warning"></ion-icon>
+    </ion-button>
+  </ion-item>
+</ion-header>
+
+<ion-content>
+  <div [hidden]="webviewLoading" class="entire-screen" #webviewEl></div>
+</ion-content>
 

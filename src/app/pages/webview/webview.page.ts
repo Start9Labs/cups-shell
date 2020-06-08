@@ -4,7 +4,6 @@ import { NavController, LoadingController } from '@ionic/angular'
 import { WebviewPluginNative } from 'capacitor-s9-webview'
 import { TorService, TorConnection } from 'src/app/services/tor.service'
 import { Store } from 'src/app/store'
-import { Subscription } from 'rxjs'
 
 import { Plugins } from '@capacitor/core'
 const { App } = Plugins
@@ -17,9 +16,8 @@ const { App } = Plugins
 export class WebviewPage {
   @ViewChild('webviewEl') webviewEl: ElementRef
   webview: WebviewPluginNative
-  torSub: Subscription
   webviewLoading = true
-  torLoading = false
+  displayBadConnection = false
   cancelable = null
   loader: HTMLIonLoadingElement
 
@@ -33,51 +31,34 @@ export class WebviewPage {
   ) { }
 
   ngAfterViewInit () {
-    // watch Tor connection
-    this.torSub = this.torService.watchConnection().subscribe(c => {
-      this.zone.run(() => {
-        if (c === TorConnection.in_progress) {
-          this.torLoading = true
-        } else {
-          this.torLoading = false
-          if (!this.webview) {
-            this.createWebview()
-            this.setLoading()
-          }
-        }
-      })
-    })
+    if (this.torService.peakConnection() === TorConnection.uninitialized) {
+      this.torService.init()
+      this.handleBadConnection()
+    }
+    this.createWebview()
+    this.setLoading()
     // listen for app resume
     App.addListener('appStateChange', async state => {
       if (state.isActive) {
-        const tempSub = this.torService.watchConnection().subscribe(async c => {
-          if (c === TorConnection.connected) {
-            try {
-              if (this.webview) { await this.webview.checkForUpdates() }
-            } catch (e) {
-              console.error(e)
-            } finally {
-              tempSub.unsubscribe()
-            }
-          }
-        })
+        this.handleBadConnection()
+        await this.webview.checkForUpdates(60).catch(console.error)
       }
     })
   }
 
-  ngOnDestroy () {
-    this.torSub.unsubscribe()
+  dismissBadConnection (): void {
+    this.displayBadConnection = false
   }
 
   private async setLoading (): Promise<void> {
     if (!this.loader) {
       this.loader = await this.loadingCtrl.create({
-        message: 'Loading Cups...',
         spinner: 'lines',
         cssClass: 'loader',
+        message: 'Loading Cups',
       })
+      await this.loader.present()
     }
-    await this.loader.present()
 
     this.webviewLoading = true
 
@@ -96,7 +77,7 @@ export class WebviewPage {
       console.error(e)
     }).finally(() => {
       this.zone.run(() => { this.webviewLoading = false })
-      this.loader.dismiss()
+      this.dismissLoader()
     })
   }
 
@@ -120,6 +101,7 @@ export class WebviewPage {
         host: '127.0.0.1',
         port: TorService.PORT,
       },
+      torTimeout: 60,
       rpchandler: async (_host: string, method: string, data: any) => {
         switch (method) {
           case '/parentReady':
@@ -141,7 +123,7 @@ export class WebviewPage {
 
   private async handleChildReady (): Promise<void> {
     this.zone.run(() => { this.webviewLoading = false })
-    if (this.loader) { this.loader.dismiss() }
+    this.dismissLoader()
   }
 
   private async getConfigValue (key: string): Promise<any> {
@@ -156,5 +138,20 @@ export class WebviewPage {
     this.zone.run(() => { this.navCtrl.navigateRoot(['/home']) })
     this.webview.close()
     this.webview = undefined
+  }
+
+  private async handleBadConnection (): Promise<void> {
+    setTimeout(() => {
+      if (this.torService.peakConnection() !== TorConnection.connected) {
+        this.zone.run(() => this.displayBadConnection = true)
+      }
+    }, 15000)
+  }
+
+  private async dismissLoader (): Promise<void> {
+    if (this.loader) {
+      this.loader.dismiss()
+      this.loader = undefined
+    }
   }
 }

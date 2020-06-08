@@ -1,10 +1,10 @@
 import { Component } from '@angular/core'
 import { Router } from '@angular/router'
 import { NetworkMonitor } from './services/network.service'
-import { TorService } from './services/tor.service'
+import { TorService, TorConnection } from './services/tor.service'
 import { Store } from './store'
 
-import { Plugins, StatusBarStyle } from '@capacitor/core'
+import { Plugins, StatusBarStyle, AppState } from '@capacitor/core'
 const { App, SplashScreen, StatusBar } = Plugins
 
 @Component({
@@ -28,19 +28,13 @@ export class AppComponent {
   private async initializeApp () {
     // init store
     await this.store.init()
-    // start services
-    await this.startServices()
+    // init network monitor
+    await this.networkMonitor.init()
     // navigate
     await this.navigate()
     // subscribe to pause/resume events
     App.addListener('appStateChange', async state => {
-      if (state.isActive) {
-        await this.startServices()
-        this.store.platformReady = true
-      } else {
-        this.store.platformReady = false
-        await this.stopServices()
-      }
+      this.handleStateChange(state)
     })
     // set StatusBar overlays webview
     StatusBar.setOverlaysWebView({ overlay: false })
@@ -50,17 +44,7 @@ export class AppComponent {
     SplashScreen.hide()
   }
 
-  private async startServices (): Promise<void> {
-    await this.networkMonitor.init()
-    this.torService.init()
-  }
-
-  private async stopServices (): Promise<void> {
-    await this.torService.stop()
-    this.networkMonitor.unint()
-  }
-
-  private async navigate () {
+  private async navigate (): Promise<void> {
     let route: string
     if (this.store.peekTorAddress() && this.store.peekPassword()) {
       route = '/webview'
@@ -68,5 +52,21 @@ export class AppComponent {
       route = '/home'
     }
     this.router.navigate([route])
+  }
+
+  private async handleStateChange (state: AppState): Promise<void> {
+    // app foregrounded
+    if (state.isActive) {
+      await this.networkMonitor.init()
+      if (this.torService.peakConnection() !== TorConnection.uninitialized) {
+        this.torService.init()
+      }
+      this.store.platformReady = true
+    // app backgrounded
+    } else {
+      this.store.platformReady = false
+      await this.torService.stop()
+      this.networkMonitor.unint()
+    }
   }
 }

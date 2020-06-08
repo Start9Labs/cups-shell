@@ -3,7 +3,8 @@ import { Tor } from 'capacitor-tor'
 import { Observable, BehaviorSubject, Subscription } from 'rxjs'
 import { NetworkMonitor } from './network.service'
 import { NetworkStatus } from '@capacitor/core'
-import { Platform, LoadingController, AlertController } from '@ionic/angular'
+import { Platform } from '@ionic/angular'
+import { WebviewPluginNative } from 'capacitor-s9-webview'
 
 @Injectable({
   providedIn: 'root',
@@ -13,18 +14,20 @@ export class TorService {
   private readonly tor = new Tor()
   private readonly progress$ = new BehaviorSubject<number>(0)
   private readonly connection$ = new BehaviorSubject<TorConnection>(TorConnection.uninitialized)
-  networkSub: Subscription
+  private networkSub: Subscription
+  private webview: WebviewPluginNative
   watchProgress (): Observable<number> { return this.progress$.asObservable() }
   watchConnection (): Observable<TorConnection> { return this.connection$.asObservable() }
+  peakProgress (): number { return this.progress$.getValue() }
+  peakConnection (): TorConnection { return this.connection$.getValue() }
 
   constructor (
     private readonly platform: Platform,
-    private readonly loadingCtrl: LoadingController,
-    private readonly alertCtrl: AlertController,
     private readonly networkMonitor: NetworkMonitor,
   ) { }
 
   init (): void {
+    this.webview = this.webview || new WebviewPluginNative()
     this.networkSub = this.networkSub || this.networkMonitor.watch().subscribe(n => this.handleNetworkChange(n))
   }
 
@@ -39,18 +42,13 @@ export class TorService {
 
     this.connection$.next(TorConnection.in_progress)
 
-    const loader = await this.loadingCtrl.create({
-      spinner: 'lines',
-      cssClass: 'loader',
-      message: 'Tor connecting: 0%',
-    })
-    await loader.present()
-
-    this.connection$.next(TorConnection.in_progress)
-
     this.tor.start({ socksPort: TorService.PORT, initTimeout: 60000 }).subscribe({
-      next: (progress: number) => this.handleConnecting(progress, loader),
-      error: async (err: string) => this.handleError(loader),
+      next: (progress: number) => this.handleConnecting(progress),
+      error: (e) => {
+        console.error(e)
+        this.connection$.next(TorConnection.failed)
+        this.connection$.next(TorConnection.disconnected)
+      },
     })
   }
 
@@ -60,9 +58,10 @@ export class TorService {
     if (await this.tor.isRunning()) {
       console.log('stopping Tor')
       try {
-        this.tor.stop()
+        await this.webview.torStopped()
         this.progress$.next(0)
         this.connection$.next(TorConnection.disconnected)
+        this.tor.stop()
       } catch (e) {
         console.log(`Tor stop failed: ${e}`)
       }
@@ -81,7 +80,7 @@ export class TorService {
     console.log('reconnecting Tor')
     try {
       await this.tor.reconnect()
-      this.connection$.next(TorConnection.connected)
+      this.handleConnected()
     } catch (e) {
       console.log(`Tor reconnect failed: ${e}`)
       await this.restart()
@@ -91,6 +90,7 @@ export class TorService {
   private async handleNetworkChange (network: NetworkStatus): Promise<void> {
     // if connected to Internet, connect or reconnect to Tor
     if (network.connected) {
+      // hack for local testing
       if (this.platform.is('desktop')) { this.start(); return }
 
       if (await this.tor.isRunning()) {
@@ -101,52 +101,27 @@ export class TorService {
     }
   }
 
-  private async handleConnecting (progress: number, loader: HTMLIonLoadingElement) {
+  private async handleConnecting (progress: number) {
     this.progress$.next(progress)
-    loader.message = `Tor connecting: ${progress}%`
-
     if (progress === 100) {
-      this.connection$.next(TorConnection.connected)
-      await loader.dismiss()
+      this.handleConnected()
     }
+  }
+
+  private async handleConnected (): Promise<void> {
+    this.connection$.next(TorConnection.connected)
+    await this.webview.torStarted()
   }
 
   private async  mock (): Promise<void> {
     console.log('starting Tor')
     this.connection$.next(TorConnection.in_progress)
 
-    const loader = await this.loadingCtrl.create({
-      spinner: 'lines',
-      cssClass: 'loader',
-      message: 'Tor connecting: 0%',
-    })
-    await loader.present()
-
-    setTimeout(() => { this.handleConnecting(25, loader) }, 500)
-    setTimeout(() => { this.handleConnecting(40, loader) }, 1000)
-    setTimeout(() => { this.handleConnecting(60, loader) }, 1500)
-    setTimeout(() => { this.handleConnecting(90, loader) }, 1800)
-    setTimeout(() => { this.handleConnecting(100, loader) }, 2500)
-  }
-
-  private async handleError (loader: HTMLIonLoadingElement): Promise<void> {
-    await loader.dismiss()
-    await this.presentAlertFailed()
-  }
-
-  private async presentAlertFailed (): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      header: 'Connection Failed',
-      message: 'Tor failed to connect. Please restart Cups to try again.',
-      buttons: [{
-        text: 'OK',
-        role: 'cancel',
-        handler: () => {
-          this.connection$.next(TorConnection.disconnected)
-        },
-      }],
-    })
-    await alert.present()
+    setTimeout(() => { this.handleConnecting(25) }, 500)
+    setTimeout(() => { this.handleConnecting(40) }, 1000)
+    setTimeout(() => { this.handleConnecting(60) }, 1500)
+    setTimeout(() => { this.handleConnecting(90) }, 1800)
+    setTimeout(() => { this.handleConnecting(100) }, 2500)
   }
 }
 
@@ -155,4 +130,5 @@ export enum TorConnection {
   in_progress = 'in_progress',
   connected = 'connected',
   disconnected = 'disconnected',
+  failed = 'failed',
 }
