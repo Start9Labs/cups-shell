@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { Tor } from 'capacitor-tor'
+import { Tor } from '@start9labs/capacitor-tor'
 import { Observable, BehaviorSubject, Subscription } from 'rxjs'
 import { NetworkMonitor } from './network.service'
 import { NetworkStatus } from '@capacitor/core'

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { HttpPluginNativeImpl, HttpOptions } from 'capacitor-http'
+import { HttpPluginNativeImpl, HttpOptions } from '@start9labs/capacitor-http'
 import { TorService } from './tor.service'
 
 @Injectable({
