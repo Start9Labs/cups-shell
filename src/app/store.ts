@@ -8,7 +8,6 @@ const { Storage, SecureStoragePlugin: SecureStorage } = Plugins
   providedIn: 'root',
 })
 export class Store {
-  platformReady = true
   private readonly torAddress$ = new BehaviorSubject<string>('')
   private readonly password$ = new BehaviorSubject<string>('')
   watchTorAddress (): Observable<string> { return this.torAddress$.asObservable() }

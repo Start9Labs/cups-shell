@@ -17,7 +17,6 @@ export class WebviewPage {
   @ViewChild('webviewEl') webviewEl: ElementRef
   webview: WebviewPluginNative
   webviewLoading = true
-  displayBadConnection = false
   cancelable = null
   loader: HTMLIonLoadingElement
 
@@ -33,21 +32,15 @@ export class WebviewPage {
   ngAfterViewInit () {
     if (this.torService.peakConnection() === TorConnection.uninitialized) {
       this.torService.init()
-      this.handleBadConnection()
     }
-    this.createWebview()
     this.setLoading()
+    this.createWebview()
     // listen for app resume
     App.addListener('appStateChange', async state => {
       if (state.isActive) {
-        this.handleBadConnection()
         await this.webview.checkForUpdates(60).catch(console.error)
       }
     })
-  }
-
-  dismissBadConnection (): void {
-    this.displayBadConnection = false
   }
 
   private async setLoading (): Promise<void> {
@@ -104,8 +97,6 @@ export class WebviewPage {
       torTimeout: 60,
       rpchandler: async (_host: string, method: string, data: any) => {
         switch (method) {
-          case '/parentReady':
-            return this.store.platformReady
           case '/childReady':
             this.handleChildReady()
             break
@@ -138,14 +129,6 @@ export class WebviewPage {
     this.zone.run(() => { this.navCtrl.navigateRoot(['/home']) })
     this.webview.close()
     this.webview = undefined
-  }
-
-  private async handleBadConnection (): Promise<void> {
-    setTimeout(() => {
-      if (this.torService.peakConnection() !== TorConnection.connected) {
-        this.zone.run(() => this.displayBadConnection = true)
-      }
-    }, 15000)
   }
 
   private async dismissLoader (): Promise<void> {

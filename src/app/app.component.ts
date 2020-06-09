@@ -61,10 +61,8 @@ export class AppComponent {
       if (this.torService.peakConnection() !== TorConnection.uninitialized) {
         this.torService.init()
       }
-      this.store.platformReady = true
     // app backgrounded
     } else {
-      this.store.platformReady = false
       await this.torService.stop()
       this.networkMonitor.unint()
     }
