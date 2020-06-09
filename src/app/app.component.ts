@@ -1,4 +1,5 @@
 import { Component } from '@angular/core'
+import { Platform } from '@ionic/angular'
 import { Router } from '@angular/router'
 import { NetworkMonitor } from './services/network.service'
 import { TorService, TorConnection } from './services/tor.service'
@@ -15,6 +16,7 @@ const { App, SplashScreen, StatusBar } = Plugins
 export class AppComponent {
 
   constructor (
+    private readonly platform: Platform,
     private readonly router: Router,
     private readonly networkMonitor: NetworkMonitor,
     private readonly torService: TorService,
@@ -36,8 +38,10 @@ export class AppComponent {
     App.addListener('appStateChange', async state => {
       this.handleStateChange(state)
     })
-    // set StatusBar overlays webview
-    StatusBar.setOverlaysWebView({ overlay: false })
+    // set StatusBar overlays webview (Android only)
+    if (this.platform.is('android')) {
+      StatusBar.setOverlaysWebView({ overlay: false })
+    }
     // set StatusBar style
     StatusBar.setStyle({ style: StatusBarStyle.Dark })
     // dismiss splash screen

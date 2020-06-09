@@ -121,7 +121,9 @@ export class HomePage {
       // save creds
       await this.store.saveCreds(this.torAddressInput, this.passwordInput)
       // nav
-      await this.navCtrl.navigateRoot(['/webview'])
+      this.zone.run(() => {
+        this.navCtrl.navigateRoot(['/webview'])
+      })
     } catch (e) {
       console.error(e)
       if (e.status === 401) {
