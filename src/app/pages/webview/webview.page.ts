@@ -65,12 +65,11 @@ export class WebviewPage {
         res()
       }, 60000)
     }).then(() => {
+      this.zone.run(() => { this.webviewLoading = false })
+      this.dismissLoader()
       this.cancelable = null
     }).catch((e) => {
       console.error(e)
-    }).finally(() => {
-      this.zone.run(() => { this.webviewLoading = false })
-      this.dismissLoader()
     })
   }
 
@@ -84,6 +83,10 @@ export class WebviewPage {
       })
       await this.webview.clearCache(body.appId, '*')
       this.webview.reload()
+    })
+
+    this.webview.onPageLoaded(() => {
+      this.webview.checkForUpdates(60)
     })
 
     this.webview.open({
