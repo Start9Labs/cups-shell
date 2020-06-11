@@ -38,6 +38,7 @@ export class WebviewPage {
     this.createWebview()
     // listen for app resume
     this.resumeSub = App.addListener('appStateChange', async state => {
+      console.log('WEBVIEW APP STATE CHANGE', state)
       if (state.isActive) {
         await this.webview.checkForUpdates(60).catch(console.error)
       }

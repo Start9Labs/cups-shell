@@ -9,8 +9,8 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
-    implementation project(':start9labs-capacitor-tor')
     implementation project(':start9labs-capacitor-http')
+    implementation project(':start9labs-capacitor-tor')
     implementation project(':capacitor-s9-webview')
     implementation project(':capacitor-secure-storage-plugin')
 
