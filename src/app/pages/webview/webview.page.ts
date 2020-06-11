@@ -6,7 +6,6 @@ import { TorService, TorConnection } from 'src/app/services/tor.service'
 import { Store } from 'src/app/store'
 
 import { Plugins, PluginListenerHandle } from '@capacitor/core'
-import { Subscription } from 'rxjs'
 const { App } = Plugins
 
 @Component({
