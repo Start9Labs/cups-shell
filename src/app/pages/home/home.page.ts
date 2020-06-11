@@ -47,7 +47,7 @@ export class HomePage {
     this.passwordInput = this.passwordInput.trim()
     // validate inputs
     if (!this.torAddressInput.endsWith('.onion') && !this.torAddressInput.endsWith('.onion/')) {
-      this.error = 'Cups Tor Address must a ".onion" URL'
+      this.error = 'Cups Tor Address must be a ".onion" URL'
       return
     }
 

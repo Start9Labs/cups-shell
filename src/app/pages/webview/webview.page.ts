@@ -5,7 +5,8 @@ import { WebviewPluginNative } from 'capacitor-s9-webview'
 import { TorService, TorConnection } from 'src/app/services/tor.service'
 import { Store } from 'src/app/store'
 
-import { Plugins } from '@capacitor/core'
+import { Plugins, PluginListenerHandle } from '@capacitor/core'
+import { Subscription } from 'rxjs'
 const { App } = Plugins
 
 @Component({
@@ -17,6 +18,7 @@ export class WebviewPage {
   @ViewChild('webviewEl') webviewEl: ElementRef
   webview: WebviewPluginNative
   webviewLoading = true
+  resumeSub: PluginListenerHandle
   cancelable = null
   loader: HTMLIonLoadingElement
 
@@ -36,11 +38,15 @@ export class WebviewPage {
     this.setLoading()
     this.createWebview()
     // listen for app resume
-    App.addListener('appStateChange', async state => {
+    this.resumeSub = App.addListener('appStateChange', async state => {
       if (state.isActive) {
         await this.webview.checkForUpdates(60).catch(console.error)
       }
     })
+  }
+
+  ngOnDestroy () {
+    this.resumeSub.remove()
   }
 
   private async setLoading (): Promise<void> {
@@ -95,7 +101,7 @@ export class WebviewPage {
         port: TorService.PORT,
       },
       torTimeout: 60,
-      rpchandler: async (_host: string, method: string, data: any) => {
+      rpchandler: (_host: string, method: string, data: any) => {
         switch (method) {
           case '/childReady':
             this.handleChildReady()
