@@ -14,6 +14,8 @@ import { Subscription } from 'rxjs'
 export class HomePage {
   private readonly torLoadingMessage = 'Establishing Tor Circuit'
   torAddressSub: Subscription
+  connectionSub: Subscription
+  progressSub: Subscription
   torAddressInput = ''
   passwordInput = ''
   error = ''
@@ -39,6 +41,15 @@ export class HomePage {
 
   ngOnDestroy () {
     this.torAddressSub.unsubscribe()
+
+    if (this.connectionSub) {
+      this.connectionSub.unsubscribe()
+      this.connectionSub = undefined
+    }
+    if (this.progressSub) {
+      this.progressSub.unsubscribe()
+      this.progressSub = undefined
+    }
   }
 
   async login (): Promise<void> {
@@ -66,16 +77,14 @@ export class HomePage {
       })
       await this.loader.present()
 
-      const connectionSub = this.torService.watchConnection().subscribe(c => {
+      this.connectionSub = this.connectionSub || this.torService.watchConnection().subscribe(c => {
         if (c === TorConnection.failed) {
+          this.dismissLoader()
           this.presentAlertFailed()
-          connectionSub.unsubscribe()
         }
       })
-
-      const progressSub = this.torService.watchProgress().subscribe(p => {
+      this.progressSub = this.progressSub || this.torService.watchProgress().subscribe(p => {
         this.handleConnecting(p)
-        if (p === 100) { progressSub.unsubscribe() }
       })
     } else {
       this.authenticate()

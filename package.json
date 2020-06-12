@@ -1,7 +1,7 @@
 {
   "name": "cups-shell",
   "description": "mobile shell for Cups",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Start9 Labs",
   "homepage": "https://start9labs.com",
   "scripts": {
