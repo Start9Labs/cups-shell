@@ -36,7 +36,6 @@ export class AppComponent {
     await this.navigate()
     // subscribe to pause/resume events
     App.addListener('appStateChange', async state => {
-      console.log('APP COMPONENT APP STATE CHANGE', state)
       this.handleStateChange(state)
     })
     // set StatusBar overlays webview (Android only)

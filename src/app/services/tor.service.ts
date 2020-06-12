@@ -30,7 +30,6 @@ export class TorService {
   init (): void {
     this.webview = this.webview || new WebviewPluginNative()
     this.networkSub = this.networkSub || this.networkMonitor.watch().subscribe(n => {
-      console.log('TOR SERVICE NETWORK CHANGE', n)
       this.handleNetworkChange(n)
     })
   }
@@ -95,7 +94,6 @@ export class TorService {
     // if connected to Internet, connect or reconnect to Tor
     if (network.connected) {
       // hack for local testing
-      console.log('TOR SERVICE PLATFORMS', this.platform.platforms())
       if (this.platform.is('desktop')) { this.start(); return }
 
       if (await this.tor.isRunning()) {
