@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild, NgZone } from '@angular/core'
-import { NavController, LoadingController } from '@ionic/angular'
+import { NavController, LoadingController, AlertController } from '@ionic/angular'
 // import { BackgroundService } from 'src/app/services/background-service'
 import { WebviewPluginNative } from 'capacitor-s9-webview'
 import { TorService, TorConnection } from 'src/app/services/tor.service'
@@ -15,7 +15,8 @@ const { App } = Plugins
 })
 export class WebviewPage {
   @ViewChild('webviewEl') webviewEl: ElementRef
-  webview: WebviewPluginNative
+  webview: WebviewPluginNative = new WebviewPluginNative()
+  webviewIndexLoaded = false
   webviewLoading = true
   resumeSub: PluginListenerHandle
   cancelable = null
@@ -23,6 +24,7 @@ export class WebviewPage {
 
   constructor (
     private readonly navCtrl: NavController,
+    private readonly alertCtrl: AlertController,
     private readonly loadingCtrl: LoadingController,
     private readonly torService: TorService,
     // private readonly backgroundService: BackgroundService,
@@ -30,25 +32,44 @@ export class WebviewPage {
     private readonly zone: NgZone,
   ) { }
 
-  ngAfterViewInit () {
+  ngOnInit () {
+    // initialize Tor if not already
     if (this.torService.peakConnection() === TorConnection.uninitialized) {
       this.torService.init()
     }
-    this.setLoading()
-    this.createWebview()
     // listen for app resume
     this.resumeSub = App.addListener('appStateChange', async state => {
-      if (state.isActive) {
+      if (state.isActive && this.webviewIndexLoaded) {
         await this.webview.checkForUpdates(60).catch(console.error)
       }
     })
+    // listen for webview loaded
+    this.webview.onPageLoaded(() => {
+      if (!this.webviewIndexLoaded) {
+        this.webviewIndexLoaded = true
+        this.webview.checkForUpdates(60)
+      }
+    })
+    // listen for webview update
+    this.webview.onUpdate(async (body: { appId: string, oldVersion: string, newVersion: string }) => {
+      this.zone.run(() => {
+        this.webviewLoading = true
+        this.presentAlertUpdate(body.appId)
+      })
+    })
+
+    this.showLoading()
+  }
+
+  ngAfterViewInit () {
+    this.createWebview()
   }
 
   ngOnDestroy () {
     this.resumeSub.remove()
   }
 
-  private async setLoading (): Promise<void> {
+  private async showLoading (): Promise<void> {
     if (!this.loader) {
       this.loader = await this.loadingCtrl.create({
         spinner: 'lines',
@@ -57,8 +78,6 @@ export class WebviewPage {
       })
       await this.loader.present()
     }
-
-    this.webviewLoading = true
 
     if (this.cancelable) {
       this.cancelable.reject()
@@ -70,30 +89,17 @@ export class WebviewPage {
         res()
       }, 60000)
     }).then(() => {
-      this.zone.run(() => { this.webviewLoading = false })
-      this.dismissLoader()
-      this.cancelable = null
+      this.zone.run(() => {
+        this.webviewLoading = false
+        this.dismissLoader()
+        this.cancelable = null
+      })
     }).catch((e) => {
       console.error(e)
     })
   }
 
   private async createWebview (): Promise<void> {
-    this.webview = new WebviewPluginNative()
-
-    // listen for webview update event
-    this.webview.onUpdate(async (body: { appId: string, oldVersion: string, newVersion: string }) => {
-      this.zone.run(() => {
-        this.setLoading()
-      })
-      await this.webview.clearCache(body.appId, '*')
-      this.webview.reload()
-    })
-
-    this.webview.onPageLoaded(() => {
-      this.webview.checkForUpdates(60)
-    })
-
     this.webview.open({
       url: `onion://${this.store.peekTorAddress()}`,
       element: this.webviewEl.nativeElement,
@@ -121,8 +127,14 @@ export class WebviewPage {
   }
 
   private async handleChildReady (): Promise<void> {
-    this.zone.run(() => { this.webviewLoading = false })
-    this.dismissLoader()
+    this.zone.run(() => {
+      if (this.cancelable) {
+        this.cancelable.reject()
+      }
+      this.webviewLoading = false
+      // dragons
+      setTimeout(() => { this.dismissLoader() }, 500)
+    })
   }
 
   private async getConfigValue (key: string): Promise<any> {
@@ -144,5 +156,28 @@ export class WebviewPage {
       this.loader.dismiss()
       this.loader = undefined
     }
+  }
+
+  async presentAlertUpdate (appId: string): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Update Detected',
+      message: 'Cups will now synchronize with Embassy Mod.',
+      buttons: [
+        {
+          role: 'cancel',
+          text: 'OK',
+          handler: () => {
+            this.reloadWebview(appId)
+          },
+        },
+      ],
+    })
+    await alert.present()
+  }
+
+  private async reloadWebview (appId: string): Promise<void> {
+    this.showLoading()
+    await this.webview.clearCache(appId, '*')
+    await this.webview.loadUrl(`onion://${this.store.peekTorAddress()}`)
   }
 }
